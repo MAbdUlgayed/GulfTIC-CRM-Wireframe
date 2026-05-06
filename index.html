@@ -1978,8 +1978,7 @@
             async function fetchServiceCatalog() {
                 const sheetId = '1n_PIM99EEZvr9jAOFSWBk7a_c3yuvBFmhSX1yV4YzAg'; 
                 const gid = '1881170709'; 
-                const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
-
+const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}&headers=1`;
                 try {
                     const response = await fetch(url);
                     if (!response.ok) throw new Error('Network failed');

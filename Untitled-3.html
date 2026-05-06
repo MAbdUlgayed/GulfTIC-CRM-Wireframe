@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GulfTIC Internal CRM - Phase 1 BRD Interactive Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+
+        .nav-item.active { background-color: #e2e8f0; border-left: 4px solid #2563eb; color: #1e40af; font-weight: 600; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .kanban-stage { transition: transform 0.2s; }
+        .kanban-stage:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .accordion-button.active + .accordion-content { max-height: 1000px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex overflow-hidden">
+
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col h-full shrink-0 shadow-sm z-10 hidden md:flex">
+        <div class="p-6 border-b border-slate-200">
+            <h1 class="text-xl font-bold text-blue-700 tracking-tight">GulfTIC CRM</h1>
+            <p class="text-xs text-slate-500 mt-1 uppercase font-semibold">Phase 1 & 2 BRD</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <button class="nav-item active w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-100 transition-colors" data-target="view-architecture">🏛️ Core Architecture</button>
+            <button class="nav-item w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-100 transition-colors" data-target="view-pipeline">⚙️ Pipeline & SLA Engine</button>
+            <button class="nav-item w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-100 transition-colors" data-target="view-kpi">📊 KPI Dashboards</button>
+            <button class="nav-item w-full text-left px-6 py-3 text-sm text-slate-600 hover:bg-slate-100 transition-colors" data-target="view-epics">📚 Epics & UAT Criteria</button>
+        </nav>
+        <div class="p-4 border-t border-slate-200 text-xs text-slate-400 bg-slate-50">
+            Custom Internal Build <br> Version: Final Synthesis
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto h-full relative">
+        <header class="md:hidden bg-white shadow-sm p-4 sticky top-0 z-20 flex justify-between items-center border-b border-slate-200">
+            <h1 class="font-bold text-blue-700">GulfTIC CRM BRD</h1>
+            <select id="mobile-nav" class="bg-slate-100 border border-slate-300 text-slate-700 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2">
+                <option value="view-architecture">Architecture</option>
+                <option value="view-pipeline">Pipeline & SLA</option>
+                <option value="view-kpi">KPI Dashboards</option>
+                <option value="view-epics">Epics & UAT</option>
+            </select>
+        </header>
+
+        <div class="max-w-6xl mx-auto p-4 md:p-8 pb-24">
+
+            <section id="view-architecture" class="tab-content active">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Foundational Data Model & Identity</h2>
+                    <p class="text-slate-600">The CRM is built on a "Conformed Data Model". The <strong class="text-blue-700">CR Number</strong> is the unique identifier ensuring data integrity.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-bl-lg">Core Entity</div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">🏢 Facility</h3>
+                        <p class="text-sm text-slate-600 mb-4">The manufacturer/plant receiving the certificate. Created automatically when a Lead reaches "Qualified".</p>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-100 text-sm text-slate-700">
+                            <span class="font-bold text-slate-900">Rule:</span> CR Number MUST be unique. Linked to one or many Deals.
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-bl-lg">Payer Entity</div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">🤝 Client / Broker</h3>
+                        <p class="text-sm text-slate-600 mb-4">The payer/communicator responsible for the transaction. Can be linked to multiple Facilities.</p>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-100 text-sm text-slate-700">
+                            <span class="font-bold text-slate-900">Rule:</span> Mandatory <span class="bg-indigo-200 text-indigo-900 px-1 rounded">"Is Broker?" (Yes/No)</span> toggle required on creation.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">The 360-Degree Unified View</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div class="p-4 border border-slate-100 rounded-lg bg-slate-50">
+                            <div class="font-bold text-slate-700 mb-2 text-center border-b border-slate-200 pb-1">Broker Profile</div>
+                            <p class="text-slate-600">Displays a comprehensive list of all <strong class="text-blue-600">Facilities</strong> they manage.</p>
+                        </div>
+                        <div class="p-4 border border-slate-100 rounded-lg bg-slate-50">
+                            <div class="font-bold text-slate-700 mb-2 text-center border-b border-slate-200 pb-1">Facility Profile</div>
+                            <p class="text-slate-600">Displays a "Related Requests" table showing all active/closed deals across all brokers for that CR Number.</p>
+                        </div>
+                        <div class="p-4 border border-slate-100 rounded-lg bg-slate-50">
+                            <div class="font-bold text-slate-700 mb-2 text-center border-b border-slate-200 pb-1">Deal Screen</div>
+                            <p class="text-slate-600">Shows both the <strong class="text-blue-600">Facility</strong> and the <strong class="text-indigo-600">Client/Broker</strong> side-by-side.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 rounded-xl shadow-sm border border-amber-200 p-6">
+                    <h3 class="text-lg font-bold text-amber-900 mb-2">⚠ Data Integrity & Merge Tool</h3>
+                    <p class="text-sm text-amber-800 mb-3"><strong>Restriction:</strong> Sales Reps DO NOT have the ability to scan the database or merge facilities.</p>
+                    <p class="text-sm text-amber-700">A dedicated tool for Managers/Admins scans for matching CR Numbers or Fuzzy Names. Actions include <span class="bg-white px-2 py-1 rounded border border-amber-300 font-mono text-xs">Save New</span> or <span class="bg-white px-2 py-1 rounded border border-amber-300 font-mono text-xs">Merge Old</span> (Keep old, Merge contacts, companies, activities).</p>
+                </div>
+            </section>
+
+            <section id="view-pipeline" class="tab-content">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Sales Pipeline & SLA Engine</h2>
+                    <p class="text-slate-600">Structured Kanban workflows with strict data validation gates and absolute-day activity monitoring.</p>
+                </div>
+
+                <h3 class="text-xl font-bold text-slate-800 mb-4">Pipeline Stages & Validation Gates</h3>
+                <div class="flex flex-col space-y-3 mb-10 relative before:absolute before:inset-y-0 before:left-[15px] before:w-1 before:bg-slate-200">
+                    
+                    <div class="kanban-stage relative flex items-start pl-10">
+                        <div class="absolute left-0 w-8 h-8 rounded-full bg-slate-100 border-2 border-blue-500 flex items-center justify-center font-bold text-blue-600 text-sm z-10">1</div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 w-full">
+                            <h4 class="font-bold text-slate-800">New ➡️ Contacted ➡️ Verification</h4>
+                            <p class="text-sm text-slate-600 mt-1">Select activity (Call/WhatsApp), take logs, write feedback. Send verification via WhatsApp/Email.</p>
+                        </div>
+                    </div>
+
+                    <div class="kanban-stage relative flex items-start pl-10">
+                        <div class="absolute left-0 w-8 h-8 rounded-full bg-slate-100 border-2 border-emerald-500 flex items-center justify-center font-bold text-emerald-600 text-sm z-10">2</div>
+                        <div class="bg-emerald-50 p-4 rounded-lg shadow-sm border border-emerald-200 w-full relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-bl-lg">DB COMMIT</div>
+                            <h4 class="font-bold text-emerald-900">Qualified</h4>
+                            <p class="text-sm text-emerald-700 mt-1 mb-2">System Action: Lead is converted. Facility and Client records are officially stored.</p>
+                            <p class="text-xs font-mono bg-white p-2 rounded border border-emerald-200 text-slate-700"><span class="font-bold text-red-500">Validation Gate:</span> Cannot save unless filled: Country, Service Type, Contact Number, CR Number.</p>
+                        </div>
+                    </div>
+
+                    <div class="kanban-stage relative flex items-start pl-10">
+                        <div class="absolute left-0 w-8 h-8 rounded-full bg-slate-100 border-2 border-purple-500 flex items-center justify-center font-bold text-purple-600 text-sm z-10">3</div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 w-full">
+                            <h4 class="font-bold text-slate-800">Proposal / Quotation ➡️ Negotiation</h4>
+                            <p class="text-sm text-slate-600 mt-1 mb-2">Auto-Pricing Excel Catalog & Dynamic Currency API applied.</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <p class="text-xs font-mono bg-slate-50 p-2 rounded border border-slate-200 text-slate-700"><span class="font-bold text-purple-600">Gate:</span> Request No, CR No, Price, Currency, Expiry.</p>
+                                <p class="text-xs font-mono bg-purple-50 p-2 rounded border border-purple-200 text-purple-800"><span class="font-bold">Discount Rule:</span> > 15% requires Manager Approval Notes.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kanban-stage relative flex items-start pl-10">
+                        <div class="absolute left-0 w-8 h-8 rounded-full bg-slate-100 border-2 border-slate-500 flex items-center justify-center font-bold text-slate-600 text-sm z-10">4</div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 w-full flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold text-slate-800">Won / Lost</h4>
+                                <p class="text-sm text-slate-600 mt-1">Lost requires mandatory dropdown reason & notes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-slate-800 mb-4 pt-6 border-t border-slate-200">Interactive SLA Engine (Absolute Days Timer)</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-center">
+                    <p class="text-sm text-slate-500 mb-6">Move the slider to simulate days of inactivity on an open deal.</p>
+                    
+                    <input type="range" min="0" max="7" value="0" id="sla-slider" class="w-full max-w-md mx-auto block mb-4 accent-blue-600 cursor-pointer">
+                    <div class="flex justify-between w-full max-w-md mx-auto text-xs text-slate-400 font-mono mb-8 px-2">
+                        <span>Day 0</span><span>2</span><span>4</span><span>5</span><span>6</span><span>7+</span>
+                    </div>
+
+                    <div id="sla-status-card" class="max-w-md mx-auto p-6 rounded-lg border-2 border-emerald-400 bg-emerald-50 transition-all duration-300">
+                        <div id="sla-icon" class="text-4xl mb-2">🟢</div>
+                        <h4 id="sla-title" class="font-bold text-emerald-800 text-lg">Healthy Pipeline</h4>
+                        <p id="sla-desc" class="text-sm text-emerald-600 mt-2">Recent activity logged. Deal is within acceptable parameters.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-kpi" class="tab-content">
+                <div class="mb-8 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-900 mb-2">Role-Scoped KPI Dashboards</h2>
+                        <p class="text-slate-600">Visualizing required metrics for Sales, Marketing, and After-Sales performance tracking.</p>
+                    </div>
+                    <div class="hidden md:block text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded font-bold">Data Scoped via RBAC Token</div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-slate-800">Sales Effectiveness</h3>
+                            <span class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500">Win Rate / Qualified Rate</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-center border-t border-slate-100 pt-4">
+                            <div><span class="block text-slate-400 mb-1">Calls / Day (عدد المكالمات)</span><span class="font-bold text-lg text-slate-700">45 Avg</span></div>
+                            <div><span class="block text-slate-400 mb-1">Avg Deal Time (لـ Won)</span><span class="font-bold text-lg text-slate-700">18 Days</span></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-slate-800">Marketing Acquisition</h3>
+                            <span class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500">CPL vs CAC vs ROI</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="marketingChart"></canvas>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-center border-t border-slate-100 pt-4">
+                            <div class="col-span-2 text-left bg-slate-50 p-2 rounded">
+                                <span class="font-bold text-slate-700 block mb-1">Leads by Source (كام lead من كل مصدر)</span>
+                                <span class="text-slate-500">Google (40%) | Referral (25%) | Exhibition (20%) | Other (15%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800">After-Sales Retention Engine</h3>
+                        <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">Renewal KPIs</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="chart-container h-48 md:h-64">
+                            <canvas id="retentionChart"></canvas>
+                        </div>
+                        <div class="md:col-span-2 flex flex-col justify-center space-y-4">
+                            <div class="p-4 border border-slate-100 rounded-lg bg-slate-50">
+                                <h4 class="font-bold text-slate-800 text-sm mb-1">Renewal Logic Triggers</h4>
+                                <ul class="text-sm text-slate-600 list-disc pl-5">
+                                    <li><strong>Standard Certificates:</strong> Alert triggered 30 days prior to expiry.</li>
+                                    <li><strong>SQM Certificates:</strong> Alert triggered 7 months prior to expiry.</li>
+                                </ul>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-3 border border-slate-100 rounded text-center">
+                                    <span class="block text-xs text-slate-400 mb-1">Repeat Business</span>
+                                    <span class="font-bold text-xl text-blue-600">32%</span>
+                                </div>
+                                <div class="p-3 border border-slate-100 rounded text-center">
+                                    <span class="block text-xs text-slate-400 mb-1">Customer Satisfaction</span>
+                                    <span class="font-bold text-xl text-emerald-600">4.8/5</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-epics" class="tab-content">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Detailed User Story Catalog & UAT</h2>
+                    <p class="text-slate-600">The technical requirements formulated into developer-ready Epics and User Acceptance Testing criteria.</p>
+                </div>
+
+                <div class="space-y-3">
+                    
+                    <div class="border border-slate-200 rounded-lg bg-white overflow-hidden">
+                        <button class="accordion-button w-full text-left p-4 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 focus:outline-none flex justify-between items-center transition-colors">
+                            <span>Epic 1: Authentication, Lifecycle & Delegation</span>
+                            <span class="text-xl leading-none font-light">+</span>
+                        </button>
+                        <div class="accordion-content bg-white px-4 border-t border-slate-100">
+                            <ul class="py-4 space-y-3 text-sm text-slate-600">
+                                <li><strong>US 1.1:</strong> As an Admin, I want to create user accounts and assign branch-specific roles so that I can control data access and operational scoping.</li>
+                                <li><strong>US 1.2:</strong> As a User, I want a secure login and an automated "Forgot Password" link so that I can manage my access without frequent IT intervention.</li>
+                                <li><strong class="text-blue-600">Delegation Rule:</strong> If a Manager toggles a Rep to "On Leave", a mandatory prompt asks the Manager to "Select a representative for temporary delegation" to handle the absent rep's active pipeline.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-lg bg-white overflow-hidden">
+                        <button class="accordion-button w-full text-left p-4 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 focus:outline-none flex justify-between items-center transition-colors">
+                            <span>Epic 2: Intelligent Lead Management</span>
+                            <span class="text-xl leading-none font-light">+</span>
+                        </button>
+                        <div class="accordion-content bg-white px-4 border-t border-slate-100">
+                            <ul class="py-4 space-y-3 text-sm text-slate-600">
+                                <li><strong>US 2.1:</strong> As a User, I want to create a Lead with mandatory fields (Name, Phone, Service, Source) so that we maintain high data quality.</li>
+                                <li><strong>US 2.2:</strong> As a Manager, I want the system to use Round Robin distribution for admin-added leads while respecting "On Leave" statuses.</li>
+                                <li><strong class="text-blue-600">Phase 2 WhatsApp View:</strong> "WhatsApp View" Tab embedded inside the Deal/Lead profile to read synced conversation history (Read-only iframe/API) tied to client phone number.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-lg bg-white overflow-hidden">
+                        <button class="accordion-button w-full text-left p-4 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 focus:outline-none flex justify-between items-center transition-colors">
+                            <span>Epic 3: Pipeline, Quotation & Conversion</span>
+                            <span class="text-xl leading-none font-light">+</span>
+                        </button>
+                        <div class="accordion-content bg-white px-4 border-t border-slate-100">
+                            <ul class="py-4 space-y-3 text-sm text-slate-600">
+                                <li><strong>US 3.1:</strong> As a Sales Rep, I want to move deals through visual stages on a Kanban board.</li>
+                                <li><strong>US 3.2:</strong> As the System, when a deal is moved to "Qualified," I want to trigger a conversion process that creates a Facility and Client record.</li>
+                                <li><strong>Quotation Engine:</strong> Auto-Pricing Excel Catalog integration and Dynamic Currency API for accurate order lines.</li>
+                                <li><strong class="text-amber-600">UAT 1 (Discount Workflow):</strong> Given a rep applies a 20% discount. When they click Save. Then the system status changes to "Pending Approval", routes to Manager. If Rejected, manager must write notes (reason).</li>
+                                <li><strong class="text-amber-600">UAT 2 (Duplicate Prevention):</strong> Given a rep is qualifying a lead. When they enter a CR Number that already exists in the DB. Then system auto-links new Deal to existing Facility.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-lg bg-white overflow-hidden">
+                        <button class="accordion-button w-full text-left p-4 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 focus:outline-none flex justify-between items-center transition-colors">
+                            <span>Epic 4: Activity Enforcement and SLA</span>
+                            <span class="text-xl leading-none font-light">+</span>
+                        </button>
+                        <div class="accordion-content bg-white px-4 border-t border-slate-100">
+                            <ul class="py-4 space-y-3 text-sm text-slate-600">
+                                <li><strong>US 4.1:</strong> As a Sales Rep, I want to log Calls, Emails, and Meetings on a deal’s profile.</li>
+                                <li><strong>US 4.2:</strong> As a Manager, I want the system to flag any deal with 96 hours (4 Absolute Days) of inactivity so I can intervene.</li>
+                                <li><strong class="text-amber-600">UAT 4 (SLA Alert):</strong> Given a deal has no activity for 96 hours. When system checks inactivity, Then: Alert is sent, Deal marked as warning.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-lg bg-white overflow-hidden">
+                        <button class="accordion-button w-full text-left p-4 font-bold text-slate-800 bg-slate-50 hover:bg-slate-100 focus:outline-none flex justify-between items-center transition-colors">
+                            <span>Epic 5: Proactive Renewal and Retention</span>
+                            <span class="text-xl leading-none font-light">+</span>
+                        </button>
+                        <div class="accordion-content bg-white px-4 border-t border-slate-100">
+                            <ul class="py-4 space-y-3 text-sm text-slate-600">
+                                <li><strong>US 5.1:</strong> As an After-Sales Rep, I want automated alerts for certificates expiring in 30 days or 7 months.</li>
+                                <li><strong>US 5.2:</strong> As a Manager, I want a weekly report on pending renewals.</li>
+                                <li><strong class="text-amber-600">UAT 5 (Renewal Flow):</strong> Given a certificate is expiring. When it reaches threshold, Then: Alert triggered. One-Click Renewal deal can be created prepopulating Facility/Client data.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="border border-blue-200 rounded-lg bg-blue-50 overflow-hidden">
+                        <button class="accordion-button w-full text-left p-4 font-bold text-blue-900 hover:bg-blue-100 focus:outline-none flex justify-between items-center transition-colors">
+                            <span>Epic 6: Search, Audit & Reporting (New Requirements)</span>
+                            <span class="text-xl leading-none font-light">+</span>
+                        </button>
+                        <div class="accordion-content bg-white px-4 border-t border-blue-100">
+                            <ul class="py-4 space-y-3 text-sm text-slate-700">
+                                <li><strong>Audit Log Viewer (سجل التعديلات):</strong> "As an Admin, I want a 'History Log' button on every Deal to see who changed what and when, so that disputes over deal ownership or manual edits are easily resolved."</li>
+                                <li><strong>Pipeline Search & Filters:</strong> "As a User, I want a sticky search bar to find deals instantly by CR Number, Company Name, or Phone, so that navigation is seamless."</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Navigation Logic
+            const navItems = document.querySelectorAll('.nav-item');
+            const mobileNav = document.getElementById('mobile-nav');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            function switchTab(targetId) {
+                navItems.forEach(item => item.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                const activeNav = document.querySelector(`.nav-item[data-target="${targetId}"]`);
+                if(activeNav) activeNav.classList.add('active');
+                
+                document.getElementById(targetId).classList.add('active');
+                mobileNav.value = targetId;
+                
+                // Re-render charts if their container becomes visible
+                if(targetId === 'view-kpi') {
+                    renderCharts();
+                }
+            }
+
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    switchTab(e.target.dataset.target);
+                });
+            });
+
+            mobileNav.addEventListener('change', (e) => {
+                switchTab(e.target.value);
+            });
+
+            // Accordion Logic
+            const accordions = document.querySelectorAll('.accordion-button');
+            accordions.forEach(acc => {
+                acc.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const span = this.querySelector('span:last-child');
+                    if (this.classList.contains('active')) {
+                        span.textContent = '−';
+                    } else {
+                        span.textContent = '+';
+                    }
+                });
+            });
+
+            // Interactive SLA Engine Logic
+            const slaSlider = document.getElementById('sla-slider');
+            const slaCard = document.getElementById('sla-status-card');
+            const slaIcon = document.getElementById('sla-icon');
+            const slaTitle = document.getElementById('sla-title');
+            const slaDesc = document.getElementById('sla-desc');
+
+            slaSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                
+                slaCard.className = 'max-w-md mx-auto p-6 rounded-lg border-2 transition-all duration-300';
+
+                if (val < 4) {
+                    slaCard.classList.add('border-emerald-400', 'bg-emerald-50');
+                    slaIcon.textContent = '🟢';
+                    slaTitle.textContent = 'Healthy Pipeline';
+                    slaTitle.className = 'font-bold text-emerald-800 text-lg';
+                    slaDesc.textContent = 'Activity is recent. Deal is within acceptable parameters.';
+                    slaDesc.className = 'text-sm text-emerald-600 mt-2';
+                } else if (val === 4) {
+                    slaCard.classList.add('border-yellow-400', 'bg-yellow-50');
+                    slaIcon.textContent = '🔔';
+                    slaTitle.textContent = 'Timer 1: Initial Escalation (96h)';
+                    slaTitle.className = 'font-bold text-yellow-800 text-lg';
+                    slaDesc.textContent = '4 days of inactivity. Escalation alert sent to Sales Rep and Manager.';
+                    slaDesc.className = 'text-sm text-yellow-700 mt-2';
+                } else if (val === 5) {
+                    slaCard.classList.add('border-orange-400', 'bg-orange-50');
+                    slaIcon.textContent = '⏳';
+                    slaTitle.textContent = 'Timer 2: High Risk Warning';
+                    slaTitle.className = 'font-bold text-orange-800 text-lg';
+                    slaDesc.textContent = '5 days of inactivity. Deal card turns Orange indicating high risk of neglect.';
+                    slaDesc.className = 'text-sm text-orange-700 mt-2';
+                } else if (val >= 6) {
+                    slaCard.classList.add('border-red-500', 'bg-red-50');
+                    slaIcon.textContent = '🛑';
+                    slaTitle.textContent = 'Timer 3: Critical SLA Breach';
+                    slaTitle.className = 'font-bold text-red-800 text-lg';
+                    slaDesc.textContent = '6+ days of inactivity. Red warning badge (⚠) placed on Kanban. Logged in Manager KPI.';
+                    slaDesc.className = 'text-sm text-red-700 mt-2 font-bold';
+                }
+            });
+
+            // Chart.js Logic
+            let chartsRendered = false;
+            
+            function renderCharts() {
+                if(chartsRendered) return;
+                
+                // Common options
+                const commonOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { font: { family: "'Segoe UI', sans-serif" } } } }
+                };
+
+                // Chart 1: Sales (Qualified vs Win Rate)
+                const ctxSales = document.getElementById('salesChart').getContext('2d');
+                new Chart(ctxSales, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Q1', 'Q2', 'Q3', 'Current'],
+                        datasets: [
+                            { label: 'Qualified Rate (%)', data: [45, 52, 48, 55], backgroundColor: 'rgba(59, 130, 246, 0.7)' },
+                            { label: 'Win Rate (%)', data: [20, 25, 22, 28], backgroundColor: 'rgba(16, 185, 129, 0.7)' }
+                        ]
+                    },
+                    options: { ...commonOptions, scales: { y: { beginAtZero: true, max: 100 } } }
+                });
+
+                // Chart 2: Marketing (CPL vs CAC)
+                const ctxMktg = document.getElementById('marketingChart').getContext('2d');
+                new Chart(ctxMktg, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [
+                            { label: 'CPL ($)', data: [40, 38, 42, 35, 30, 28], borderColor: 'rgba(99, 102, 241, 1)', backgroundColor: 'rgba(99, 102, 241, 0.1)', fill: true, tension: 0.3 },
+                            { label: 'CAC ($)', data: [400, 380, 410, 350, 320, 290], borderColor: 'rgba(245, 158, 11, 1)', backgroundColor: 'rgba(245, 158, 11, 0.1)', fill: true, tension: 0.3, yAxisID: 'y1' }
+                        ]
+                    },
+                    options: { 
+                        ...commonOptions, 
+                        scales: { 
+                            y: { type: 'linear', display: true, position: 'left', title: {display: true, text: 'Cost Per Lead'} },
+                            y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display: true, text: 'Cost of Acquisition'} }
+                        } 
+                    }
+                });
+
+                // Chart 3: After-Sales Renewal
+                const ctxRet = document.getElementById('retentionChart').getContext('2d');
+                new Chart(ctxRet, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Renewed', 'Expired/Lost'],
+                        datasets: [{
+                            data: [78, 22],
+                            backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(226, 232, 240, 1)'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { 
+                        ...commonOptions,
+                        cutout: '75%',
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw}%` } }
+                        }
+                    },
+                    plugins: [{
+                        id: 'centerText',
+                        beforeDraw: function(chart) {
+                            var width = chart.width, height = chart.height, ctx = chart.ctx;
+                            ctx.restore();
+                            var fontSize = (height / 114).toFixed(2);
+                            ctx.font = "bold " + fontSize + "em sans-serif";
+                            ctx.textBaseline = "middle";
+                            ctx.fillStyle = "#0f172a";
+                            var text = "78%", textX = Math.round((width - ctx.measureText(text).width) / 2), textY = height / 2.2;
+                            ctx.fillText(text, textX, textY);
+                            
+                            ctx.font = "normal " + (fontSize*0.3).toFixed(2) + "em sans-serif";
+                            ctx.fillStyle = "#64748b";
+                            var text2 = "Renewal Rate", text2X = Math.round((width - ctx.measureText(text2).width) / 2), text2Y = height / 1.7;
+                            ctx.fillText(text2, text2X, text2Y);
+                            ctx.save();
+                        }
+                    }]
+                });
+
+                chartsRendered = true;
+            }
+
+            // Init charts if dashboard is default
+            if(document.getElementById('view-kpi').classList.contains('active')) {
+                renderCharts();
+            }
+        });
+    </script>
+</body>
+</html>

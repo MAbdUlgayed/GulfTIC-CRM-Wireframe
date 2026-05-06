@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GulfTIC CRM Phase 1 BRD Synthesis & Deep Dive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        /* --- Original Styles --- */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .nav-active {
+            background-color: #e2e8f0;
+            color: #0369a1;
+            font-weight: 600;
+            border-left: 4px solid #0369a1;
+        }
+        .tab-active {
+            border-bottom: 2px solid #0284c7;
+            color: #0284c7;
+            font-weight: 600;
+        }
+        .funnel-stage {
+            clip-path: polygon(0% 0%, 100% 0%, 95% 100%, 5% 100%);
+            margin-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+        .funnel-stage:hover {
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        /* --- New Creative Styles (From Reference) --- */
+        .material-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+        .node-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #4f46e5;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-top: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .data-table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 0.875rem;
+        }
+        .data-table tr:hover {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <nav class="w-72 bg-slate-100 border-r border-slate-200 h-full flex flex-col shadow-sm shrink-0 z-20 hidden lg:flex">
+        <div class="p-6 border-b border-slate-200 bg-white">
+            <h1 class="text-2xl font-extrabold text-indigo-900 tracking-tight">GulfTIC CRM</h1>
+            <p class="text-xs text-slate-500 mt-1 uppercase font-bold tracking-wider">Phase 1 BRD Synthesis</p>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4 hide-scrollbar">
+            <ul class="space-y-1">
+                <li class="px-6 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Interactive Dashboards</li>
+                <li><a href="#exec-summary" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-200 transition-colors nav-active" data-target="exec-summary">📊 Executive Summary</a></li>
+                <li><a href="#architecture" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-200 transition-colors" data-target="architecture">🏛️ Core Architecture</a></li>
+                <li><a href="#pipeline-slas" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-200 transition-colors" data-target="pipeline-slas">⚙️ Pipeline & SLAs</a></li>
+                <li><a href="#gap-assessment" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-200 transition-colors" data-target="gap-assessment">🚨 Gap Analysis</a></li>
+                
+                <li class="mt-6 mb-2 px-6 py-2 text-xs font-bold text-indigo-400 uppercase tracking-wider border-t border-slate-200 pt-6">Deep Dive Documentation</li>
+                <li><a href="#deep-exec" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-200 transition-colors" data-target="deep-exec">1. Vision & Stakeholders</a></li>
+                <li><a href="#deep-data" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-200 transition-colors" data-target="deep-data">2. Data Model Dictionary</a></li>
+                <li><a href="#deep-modules" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-200 transition-colors" data-target="deep-modules">3. Module Specifications</a></li>
+                <li><a href="#deep-security" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-200 transition-colors" data-target="deep-security">4. Security & RBAC Matrix</a></li>
+                <li><a href="#deep-sprints" class="nav-link block py-3 px-6 text-sm text-slate-600 hover:bg-slate-200 transition-colors" data-target="deep-sprints">5. Sprint Delivery Plan</a></li>
+            </ul>
+        </div>
+        <div class="p-4 border-t border-slate-200 text-xs text-slate-400 bg-white text-center font-medium">
+            System Architecture Review<br>v1.0.0
+        </div>
+    </nav>
+
+    <main class="flex-1 h-full overflow-y-auto scroll-smooth relative bg-slate-50" id="main-content">
+        
+        <header class="lg:hidden bg-white p-4 border-b border-slate-200 sticky top-0 z-30 flex justify-between items-center shadow-sm">
+            <h1 class="text-lg font-bold text-indigo-900">GulfTIC CRM BRD</h1>
+            <span class="text-xl text-slate-600">≡</span>
+        </header>
+
+        <div class="max-w-7xl mx-auto p-4 sm:p-6 md:p-10 space-y-20 pb-32">
+
+            <section id="exec-summary" class="scroll-mt-10">
+                <div class="mb-8 text-center md:text-left">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-3 tracking-tight">Executive Summary & Objectives</h2>
+                    <p class="text-slate-600 text-lg max-w-3xl">Centralizing operations to eliminate lead leakage and establish automated, accountable sales execution.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="material-card border-t-4 border-rose-500 hover:-translate-y-1 transition-transform duration-300">
+                        <h3 class="text-sm font-bold text-rose-600 uppercase tracking-wider mb-5 flex items-center"><span class="text-xl mr-2">⚠️</span> Current Operational Problems</h3>
+                        <ul class="space-y-4 text-sm text-slate-700">
+                            <li class="flex items-start"><span class="mr-3 text-rose-400">▪️</span> <span><strong>Data Leakage:</strong> Leads scattered across Excel and WhatsApp.</span></li>
+                            <li class="flex items-start"><span class="mr-3 text-rose-400">▪️</span> <span><strong>No Accountability:</strong> No clear assignment logic or ownership clarity.</span></li>
+                            <li class="flex items-start"><span class="mr-3 text-rose-400">▪️</span> <span><strong>Poor Discipline:</strong> Inconsistent sales follow-up and lack of SLA enforcement.</span></li>
+                            <li class="flex items-start"><span class="mr-3 text-rose-400">▪️</span> <span><strong>Data Integrity:</strong> Severe duplicate client issues due to no standard DB.</span></li>
+                            <li class="flex items-start"><span class="mr-3 text-rose-400">▪️</span> <span><strong>Manual BI:</strong> Reporting is manually prepared and inherently inaccurate.</span></li>
+                        </ul>
+                    </div>
+                    <div class="material-card border-t-4 border-emerald-500 hover:-translate-y-1 transition-transform duration-300">
+                        <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-5 flex items-center"><span class="text-xl mr-2">🎯</span> Primary Business Goals</h3>
+                        <ul class="space-y-4 text-sm text-slate-700">
+                            <li class="flex items-start"><span class="mr-3 text-emerald-400">▪️</span> <span><strong>Centralization:</strong> Unify all leads and customers in a single, secure system.</span></li>
+                            <li class="flex items-start"><span class="mr-3 text-emerald-400">▪️</span> <span><strong>Conversion Uplift:</strong> Increase conversion rates & reduce lead response times.</span></li>
+                            <li class="flex items-start"><span class="mr-3 text-emerald-400">▪️</span> <span><strong>Enforce SLAs:</strong> Establish automated sales accountability & prevent lead neglect.</span></li>
+                            <li class="flex items-start"><span class="mr-3 text-emerald-400">▪️</span> <span><strong>Live Analytics:</strong> Enable real-time management KPI visibility via dashboards.</span></li>
+                            <li class="flex items-start"><span class="mr-3 text-emerald-400">▪️</span> <span><strong>Scalability:</strong> Build a pristine data foundation for Phase 2 AI automation.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="architecture" class="scroll-mt-10">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">Core Data Architecture</h2>
+                    <p class="text-slate-600 text-lg">Interactive breakdown of the foundational data models and unique business logic.</p>
+                </div>
+                <div class="material-card p-0 overflow-hidden border-t-4 border-indigo-500">
+                    <div class="flex border-b border-slate-200 bg-slate-50 px-2 overflow-x-auto hide-scrollbar">
+                        <button class="tab-btn py-4 px-6 text-sm font-bold text-slate-500 hover:text-indigo-600 whitespace-nowrap tab-active transition-colors" data-tab="entity-lead">📌 Lead Matrix</button>
+                        <button class="tab-btn py-4 px-6 text-sm font-bold text-slate-500 hover:text-indigo-600 whitespace-nowrap transition-colors" data-tab="entity-facility">🏢 Facility Node</button>
+                        <button class="tab-btn py-4 px-6 text-sm font-bold text-slate-500 hover:text-indigo-600 whitespace-nowrap transition-colors" data-tab="entity-client">🤝 Client/Broker Node</button>
+                        <button class="tab-btn py-4 px-6 text-sm font-bold text-slate-500 hover:text-indigo-600 whitespace-nowrap transition-colors" data-tab="entity-deal">💰 Opportunity (Deal)</button>
+                    </div>
+
+                    <div class="p-6 md:p-8 min-h-[350px] bg-white">
+                        
+                        <div id="entity-lead" class="tab-content block animate-fade-in">
+                            <h3 class="text-2xl font-bold text-indigo-900 mb-2">Lead Entity</h3>
+                            <p class="text-sm text-slate-500 mb-8 pb-4 border-b border-slate-100">A potential inquiry before full qualification. Raw data entry point.</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="node-box"><span class="block text-xs font-bold text-indigo-400 mb-1">FIELD</span> <span class="font-medium text-slate-700">Name & Mobile</span></div>
+                                <div class="node-box"><span class="block text-xs font-bold text-indigo-400 mb-1">FIELD</span> <span class="font-medium text-slate-700">Email & Country</span></div>
+                                <div class="node-box"><span class="block text-xs font-bold text-indigo-400 mb-1">FIELD</span> <span class="font-medium text-slate-700">Source & Industry</span></div>
+                                <div class="node-box border-l-amber-500 bg-amber-50"><span class="block text-xs font-bold text-amber-500 mb-1">SYSTEM</span> <span class="font-medium text-slate-700">Assigned Rep</span></div>
+                                <div class="node-box border-l-emerald-500 bg-emerald-50 col-span-2 md:col-span-4 mt-2">
+                                    <span class="block text-xs font-bold text-emerald-600 mb-2">AUTOMATED SYSTEM RULES</span> 
+                                    <p class="text-sm text-slate-700"><strong>Duplicate Check:</strong> Triggers on Mobile, Email, or Company Name. <br><strong>Auto-Routing:</strong> Geographic mapping (e.g., UAE leads ➔ UAE team).</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="entity-facility" class="tab-content hidden animate-fade-in">
+                            <h3 class="text-2xl font-bold text-indigo-900 mb-2">Facility Entity (Importer/Exporter)</h3>
+                            <p class="text-sm text-slate-500 mb-8 pb-4 border-b border-slate-100">The actual physical factory or company that the legal certificate will be issued to.</p>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div class="node-box"><span class="block text-xs font-bold text-indigo-400 mb-1">FIELD</span> <span class="font-medium">Company Name</span></div>
+                                <div class="node-box"><span class="block text-xs font-bold text-indigo-400 mb-1">FIELD</span> <span class="font-medium">CR Number</span></div>
+                                <div class="node-box"><span class="block text-xs font-bold text-indigo-400 mb-1">FIELD</span> <span class="font-medium">Country & Address</span></div>
+                                <div class="node-box"><span class="block text-xs font-bold text-indigo-400 mb-1">FIELD</span> <span class="font-medium">Industry</span></div>
+                                <div class="node-box"><span class="block text-xs font-bold text-indigo-400 mb-1">FIELD</span> <span class="font-medium">Registration Data</span></div>
+                                <div class="node-box border-l-rose-500 bg-rose-50 col-span-2 md:col-span-3 mt-2">
+                                    <span class="block text-xs font-bold text-rose-600 mb-2">CORE RELATIONSHIP CONSTRAINT</span> 
+                                    <p class="text-sm text-slate-700">Facilities do <strong>NOT</strong> directly pay invoices or act as communicators in many scenarios; they must be strictly linked to 'Clients' or 'Brokers'.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="entity-client" class="tab-content hidden animate-fade-in">
+                            <h3 class="text-2xl font-bold text-indigo-900 mb-2">Client Entity (Communicator/Payer)</h3>
+                            <p class="text-sm text-slate-500 mb-6 pb-4 border-b border-slate-100">The person or agency dealing with GulfTIC to process the job and pay invoices.</p>
+                            
+                            <div class="mb-6 p-5 bg-indigo-50 border border-indigo-200 rounded-xl shadow-inner">
+                                <label class="flex items-center cursor-pointer">
+                                    <div class="relative">
+                                        <input type="checkbox" id="brokerToggle" class="sr-only">
+                                        <div class="block bg-slate-300 w-14 h-8 rounded-full transition-colors duration-300" id="brokerBg"></div>
+                                        <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-300 shadow-md" id="brokerDot"></div>
+                                    </div>
+                                    <div class="ml-4 font-bold text-slate-700 text-lg">
+                                        Is this client a third-party Broker? 
+                                        <span id="brokerStatus" class="ml-3 px-3 py-1 bg-slate-200 text-slate-600 text-xs rounded-md uppercase font-black tracking-widest shadow-sm transition-colors">No (Internal)</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="clientFields">
+                                <div class="p-6 border-2 border-slate-200 rounded-xl transition-all duration-500 bg-white shadow-sm" id="clientDescBox">
+                                    <h4 class="font-extrabold text-slate-800 mb-2 text-lg">Internal Employee</h4>
+                                    <p class="text-slate-500 text-sm leading-relaxed">This contact works directly inside the associated Facility. Communications and invoices are handled directly with the manufacturer.</p>
+                                </div>
+                                <div class="node-box border-l-cyan-500 bg-cyan-50 flex flex-col justify-center">
+                                    <span class="block text-xs font-bold text-cyan-600 mb-2 uppercase tracking-wider">Standard Fields</span>
+                                    <p class="font-medium text-slate-700 text-sm">Name, Phone, Email, Role, Linked Facilities Map.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="entity-deal" class="tab-content hidden animate-fade-in">
+                            <h3 class="text-2xl font-bold text-indigo-900 mb-2">Opportunity Entity (Deal)</h3>
+                            <p class="text-sm text-slate-500 mb-6 pb-4 border-b border-slate-100">The transactional revenue record tracking the certification lifecycle.</p>
+                            
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <div class="flex-1 grid grid-cols-2 gap-4">
+                                    <div class="node-box border-l-indigo-400"><span class="block text-xs font-bold text-indigo-500 mb-1">RELATIONAL</span> <span class="text-sm font-medium">Facility & Client Map</span></div>
+                                    <div class="node-box border-l-emerald-400"><span class="block text-xs font-bold text-emerald-500 mb-1">FINANCIAL</span> <span class="text-sm font-medium">Service Type & Value</span></div>
+                                    <div class="node-box border-l-cyan-400"><span class="block text-xs font-bold text-cyan-500 mb-1">PIPELINE</span> <span class="text-sm font-medium">Expected Close Date</span></div>
+                                    <div class="node-box border-l-purple-400"><span class="block text-xs font-bold text-purple-500 mb-1">OWNERSHIP</span> <span class="text-sm font-medium">Stage & Owner Rep</span></div>
+                                    <div class="node-box border-l-amber-400 col-span-2"><span class="block text-xs font-bold text-amber-500 mb-1">TRACKING</span> <span class="text-sm font-medium">Lost Reason (Mandatory), Next Action Date, Audit Logs</span></div>
+                                </div>
+                                <div class="w-full md:w-1/3 bg-amber-50 p-6 border border-amber-200 rounded-xl shadow-inner">
+                                    <h4 class="font-extrabold text-amber-900 text-sm mb-3 uppercase tracking-wider">❗ Critical Rule: "WON" Stage</h4>
+                                    <p class="text-sm text-amber-800 mb-3 leading-relaxed">"Won" does <strong>NOT</strong> mean the certificate is issued. That is an operations metric.</p>
+                                    <p class="text-sm text-amber-800 font-medium bg-amber-100 p-3 rounded border border-amber-300">
+                                        Deal triggers Won when:<br>
+                                        1. Client officially confirms order.<br>
+                                        2. Required docs are submitted.<br>
+                                        3. Operation request initiated.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <section id="pipeline-slas" class="scroll-mt-10">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">Pipeline Funnel & SLA Engine</h2>
+                    <p class="text-slate-600 text-lg">Defining the standard sales process and the interactive simulation of the automated neglect prevention rules.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="material-card border-t-4 border-cyan-500">
+                        <h3 class="font-extrabold text-slate-800 mb-6 uppercase tracking-wider text-sm flex items-center border-b pb-3">
+                            <span class="bg-cyan-100 text-cyan-700 p-2 rounded mr-3">1</span> Approved Sales Funnel Stages
+                        </h3>
+                        <div class="w-full h-72 flex flex-col items-center justify-center space-y-1">
+                            <div class="funnel-stage w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-center py-3 text-sm border-b-2 border-white shadow-sm cursor-pointer">1. New Inquiry</div>
+                            <div class="funnel-stage w-11/12 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold text-center py-3 text-sm border-b-2 border-white shadow-sm cursor-pointer">2. Contacted / Qualified</div>
+                            <div class="funnel-stage w-5/6 bg-indigo-300 hover:bg-indigo-400 text-indigo-900 font-bold text-center py-3 text-sm border-b-2 border-white shadow-sm cursor-pointer">3. Proposal / Scope</div>
+                            <div class="funnel-stage w-3/4 bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-center py-3 text-sm border-b-2 border-white shadow-sm cursor-pointer">4. Quotation Sent</div>
+                            <div class="funnel-stage w-2/3 bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-center py-3 text-sm border-b-2 border-white shadow-sm cursor-pointer">5. Negotiation</div>
+                            <div class="funnel-stage w-1/2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-center py-3 text-sm shadow-sm cursor-pointer tracking-widest">6. WON / LOST</div>
+                        </div>
+                        <div class="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600 font-medium flex items-start">
+                            <span class="text-amber-500 text-lg mr-2">💡</span>
+                            <p><strong>Workflow Note:</strong> Renewal Opportunities automatically bypass the standard inquiry stages and are tagged separately to streamline After-Sales retention efforts.</p>
+                        </div>
+                    </div>
+
+                    <div class="material-card border-t-4 border-amber-500">
+                        <h3 class="font-extrabold text-slate-800 mb-6 uppercase tracking-wider text-sm flex items-center border-b pb-3">
+                            <span class="bg-amber-100 text-amber-700 p-2 rounded mr-3">2</span> Interactive SLA Neglect Simulator
+                        </h3>
+                        <p class="text-sm text-slate-600 mb-8 font-medium">Use the slider below to simulate the time passed since the last logged activity on any assigned open deal. Watch the system's background worker rules trigger.</p>
+                        
+                        <div class="px-4 mb-10">
+                            <input type="range" min="0" max="100" value="0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" id="slaSlider">
+                            <div class="flex justify-between text-xs font-bold text-slate-400 mt-4 px-1">
+                                <span>0h</span>
+                                <span>24h</span>
+                                <span>48h</span>
+                                <span>96h</span>
+                            </div>
+                        </div>
+
+                        <div id="slaCard" class="p-8 rounded-2xl border-2 border-emerald-500 bg-emerald-50 transition-all duration-500 flex flex-col items-center justify-center min-h-[180px] shadow-sm relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 opacity-10 text-9xl pointer-events-none" id="slaBgIcon">🛡️</div>
+                            <div class="text-5xl mb-4 drop-shadow-sm" id="slaIcon">✅</div>
+                            <h4 class="font-black text-xl text-emerald-800 tracking-tight" id="slaTitle">Healthy Pipeline Deal</h4>
+                            <p class="text-sm font-medium text-emerald-600 text-center mt-3 max-w-xs" id="slaDesc">Recent activity logged. The sales process is active and on track.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="gap-assessment" class="scroll-mt-10">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">Marketing Assessment Gap Analysis</h2>
+                    <p class="text-slate-600 text-lg">Visualizing the critical gaps in the existing setup that necessitate this Phase 1 rebuild.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    <div class="material-card border-t-4 border-indigo-900 flex flex-col justify-center">
+                        <div class="chart-container">
+                            <canvas id="gapRadarChart"></canvas>
+                        </div>
+                        <div class="mt-6 text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+                            Required CRM Level vs Assessed Reality
+                        </div>
+                    </div>
+
+                    <div class="material-card border-t-4 border-rose-600 flex flex-col justify-between">
+                        <div>
+                            <div class="bg-rose-50 border-2 border-rose-200 p-6 rounded-xl mb-8 shadow-sm">
+                                <h3 class="text-rose-800 font-black text-xl flex items-center mb-2"><span class="mr-3 text-2xl">🛑</span> Assessment: Not Recommended</h3>
+                                <p class="text-sm font-medium text-rose-700 leading-relaxed">The current CRM setup severely lacks automation, structured quoting, and marketing analytics, necessitating a complete structural overhaul.</p>
+                            </div>
+
+                            <h3 class="font-extrabold text-slate-800 mb-4 text-sm uppercase tracking-wider border-b pb-2">Critical Action Plan Identified</h3>
+                            <div class="space-y-4">
+                                <div class="flex p-4 bg-white border border-slate-200 rounded-xl items-center shadow-sm hover:border-indigo-300 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg shrink-0 mr-4">1</div>
+                                    <p class="text-sm text-slate-700 font-bold">Fix Website & Email Integration <span class="block font-normal text-slate-500 text-xs mt-1">Zero inbound automation currently exists. API sync required.</span></p>
+                                </div>
+                                <div class="flex p-4 bg-white border border-slate-200 rounded-xl items-center shadow-sm hover:border-indigo-300 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg shrink-0 mr-4">2</div>
+                                    <p class="text-sm text-slate-700 font-bold">Clean Quotation Structure <span class="block font-normal text-slate-500 text-xs mt-1">Currently MoIAT regulations are mixed chaotically with others.</span></p>
+                                </div>
+                                <div class="flex p-4 bg-white border border-slate-200 rounded-xl items-center shadow-sm hover:border-indigo-300 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg shrink-0 mr-4">3</div>
+                                    <p class="text-sm text-slate-700 font-bold">Configure Management KPIs <span class="block font-normal text-slate-500 text-xs mt-1">Deploy RBAC-scoped dashboards for accurate real-time BI.</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="relative py-8">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t-4 border-dashed border-slate-300"></div>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="px-6 bg-slate-50 text-2xl font-black text-indigo-900 uppercase tracking-widest border-4 border-slate-300 rounded-full shadow-sm py-2">Deep Dive Document</span>
+                </div>
+            </div>
+
+            <section id="deep-exec" class="scroll-mt-10 material-card !border-t-8 !border-indigo-600">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-6 border-b-2 border-slate-100 pb-4">1. Strategic Overview & Stakeholders</h2>
+                
+                <div class="bg-indigo-50 border-l-4 border-indigo-600 p-6 rounded-r-xl mb-10">
+                    <h3 class="text-lg font-bold text-indigo-900 mb-2">Project Vision</h3>
+                    <p class="text-indigo-800 text-sm leading-relaxed font-medium">Phase 1 focuses on building a centralized, immutable sales management framework tailored to GulfTIC's unique B2B business model. By dismantling data silos (Excel, WhatsApp) and implementing strict structural relationships (Facilities vs. Clients), the system will prevent lead leakage and lay the foundation for advanced future automation.</p>
+                </div>
+
+                <h3 class="text-xl font-bold text-slate-800 mb-6">Stakeholder Hierarchy & Functional Requirements</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div class="border border-slate-200 rounded-xl p-6 bg-white shadow-sm relative overflow-hidden group hover:border-indigo-400 transition-colors">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-indigo-50 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">💼</span></div>
+                        <h4 class="font-extrabold text-lg text-slate-900 mb-1">Sales Representative</h4>
+                        <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-4">Pipeline Execution</p>
+                        <div class="space-y-2 text-sm text-slate-600">
+                            <p><strong>Primary Goal:</strong> Conversion of assigned leads efficiently.</p>
+                            <p><strong>Required Tools:</strong> Visual Kanban boards, quick-action activity logging, automated follow-up reminders.</p>
+                            <p><strong>Data Scope:</strong> Siloed view. Only sees owned records.</p>
+                        </div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl p-6 bg-white shadow-sm relative overflow-hidden group hover:border-cyan-400 transition-colors">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-cyan-50 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">📈</span></div>
+                        <h4 class="font-extrabold text-lg text-slate-900 mb-1">Sales Manager</h4>
+                        <p class="text-xs font-bold text-cyan-600 uppercase tracking-wider mb-4">Strategic Oversight</p>
+                        <div class="space-y-2 text-sm text-slate-600">
+                            <p><strong>Primary Goal:</strong> Team oversight and workload balancing.</p>
+                            <p><strong>Required Tools:</strong> Reporting dashboards, lead reassignment utility, SLA breach monitoring alerts.</p>
+                            <p><strong>Data Scope:</strong> Hierarchical view of the entire branch team.</p>
+                        </div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl p-6 bg-white shadow-sm relative overflow-hidden group hover:border-emerald-400 transition-colors">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-50 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">♻️</span></div>
+                        <h4 class="font-extrabold text-lg text-slate-900 mb-1">After-Sales Specialist</h4>
+                        <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-4">Client Retention</p>
+                        <div class="space-y-2 text-sm text-slate-600">
+                            <p><strong>Primary Goal:</strong> Proactive renewal management.</p>
+                            <p><strong>Required Tools:</strong> Automated expiry date trackers (30d/7m), one-click renewal opportunity generator.</p>
+                        </div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl p-6 bg-white shadow-sm relative overflow-hidden group hover:border-amber-400 transition-colors">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-amber-50 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">🎯</span></div>
+                        <h4 class="font-extrabold text-lg text-slate-900 mb-1">Marketing Exec</h4>
+                        <p class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-4">Lead Generation</p>
+                        <div class="space-y-2 text-sm text-slate-600">
+                            <p><strong>Primary Goal:</strong> High-quality lead generation and ROI tracking.</p>
+                            <p><strong>Required Tools:</strong> Lead source tracking, website API integration logs, campaign conversion analytics.</p>
+                        </div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl p-6 bg-white shadow-sm relative overflow-hidden group hover:border-purple-400 transition-colors xl:col-span-2">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">💰</span></div>
+                        <h4 class="font-extrabold text-lg text-slate-900 mb-1">Finance Department</h4>
+                        <p class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-4">Revenue Control</p>
+                        <div class="space-y-2 text-sm text-slate-600 flex flex-col md:flex-row md:gap-8">
+                            <div class="flex-1"><p><strong>Primary Goal:</strong> Accurate revenue forecasting and quotation standardization.</p></div>
+                            <div class="flex-1"><p><strong>Required Tools:</strong> Scheme-specific pricing rules matrices, discount approval workflow engine.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="deep-data" class="scroll-mt-10 material-card !border-t-8 !border-cyan-500">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-4 border-b-2 border-slate-100 pb-4">2. Comprehensive Data Dictionary</h2>
+                <p class="text-slate-600 mb-8">The system utilizes a Conformed Data Model. The tables below map the strict schema requirements to prevent ghost records and ensure data integrity.</p>
+
+                <div class="mb-10 overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                    <div class="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+                        <h3 class="font-bold text-white text-lg">Lead Entity Schema</h3>
+                        <span class="bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded font-mono">table_leads</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left data-table">
+                            <thead>
+                                <tr><th>Field Name</th><th>Data Type</th><th>Requirement</th><th>Business Logic / Constraints</th></tr>
+                            </thead>
+                            <tbody class="bg-white">
+                                <tr><td class="font-bold text-slate-800">Lead_ID</td><td>UUID</td><td><span class="text-rose-500 font-bold">Mandatory</span></td><td>Primary Key. Auto-generated.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Contact_Name</td><td>String (100)</td><td><span class="text-rose-500 font-bold">Mandatory</span></td><td>Raw prospect name.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Mobile_Number</td><td>String (20)</td><td><span class="text-rose-500 font-bold">Mandatory</span></td><td>E.164 Format. Triggers Duplicate Warning.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Email_Address</td><td>String (150)</td><td>Optional</td><td>Valid Email Regex. Triggers Duplicate Warning.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Target_Country</td><td>Enum</td><td><span class="text-rose-500 font-bold">Mandatory</span></td><td>Values: UAE, KSA, Egypt, Global. Drives auto-routing.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Requested_Service</td><td>String</td><td>Optional</td><td>Initial interest (e.g., ECAS, SQM).</td></tr>
+                                <tr><td class="font-bold text-slate-800">Lead_Source</td><td>Enum</td><td><span class="text-rose-500 font-bold">Mandatory</span></td><td>Website API, Manual, Referral, Exhibition.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mb-4 overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                    <div class="bg-indigo-900 px-6 py-4 border-b border-indigo-800 flex justify-between items-center">
+                        <h3 class="font-bold text-white text-lg">Opportunity (Deal) Entity Schema</h3>
+                        <span class="bg-indigo-800 text-indigo-200 text-xs px-2 py-1 rounded font-mono">table_opportunities</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left data-table">
+                            <thead>
+                                <tr><th>Field Name</th><th>Data Type</th><th>Requirement</th><th>Business Logic / Constraints</th></tr>
+                            </thead>
+                            <tbody class="bg-white">
+                                <tr><td class="font-bold text-slate-800">Deal_ID</td><td>UUID</td><td><span class="text-rose-500 font-bold">Mandatory</span></td><td>Primary Key.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Facility_ID</td><td>Foreign Key</td><td><span class="text-rose-500 font-bold">Mandatory</span></td><td>Must link to exactly ONE verified Facility record.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Client_ID</td><td>Foreign Key</td><td><span class="text-rose-500 font-bold">Mandatory</span></td><td>Must link to exactly ONE Payer/Broker.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Pipeline_Stage</td><td>Enum</td><td><span class="text-rose-500 font-bold">Mandatory</span></td><td>Inquiry, Qualified, Proposal, Quote, Negotiation, Won/Lost.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Deal_Value</td><td>Decimal</td><td>Optional</td><td>Populated upon Quote generation. Used for Weighted KPI.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Close_Reason</td><td>Enum</td><td>Conditional</td><td><span class="text-amber-600 font-bold">Non-bypassable</span> if Stage = Lost. Pre-defined list only.</td></tr>
+                                <tr><td class="font-bold text-slate-800">Last_Activity_Date</td><td>Timestamp</td><td>System</td><td>Updated automatically by Activity Module. Drives SLA logic.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="deep-modules" class="scroll-mt-10 material-card !border-t-8 !border-amber-500">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-6 border-b-2 border-slate-100 pb-4">3. Detailed Module Specifications</h2>
+
+                <div class="mb-10">
+                    <h3 class="text-xl font-black text-amber-700 mb-4 flex items-center"><span class="bg-amber-100 text-amber-800 w-8 h-8 rounded flex items-center justify-center mr-3">M1</span> Lead Capture & Distribution</h3>
+                    <div class="pl-11 space-y-4">
+                        <div class="bg-slate-50 p-5 rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-2">Web/Email API Integration</h4>
+                            <p class="text-sm text-slate-600">The CRM exposes a secure REST API endpoint to receive payloads directly from corporate landing pages. This bypasses manual data entry completely.</p>
+                            <pre class="bg-slate-800 text-emerald-400 p-4 rounded-md text-xs font-mono mt-3 overflow-x-auto"><code>POST /api/v1/leads/intake
+{
+  "source": "website_contact_form",
+  "contact_name": "Ahmed Manufacturer",
+  "mobile": "+971501234567",
+  "country": "UAE",
+  "service_interest": "ECAS Electrical"
+}</code></pre>
+                        </div>
+                        <div class="bg-slate-50 p-5 rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-2">Leave-Aware Round Robin Engine</h4>
+                            <p class="text-sm text-slate-600 mb-2">Algorithm logic for distributing centrally generated leads to ensure fair workload and immediate prospect response.</p>
+                            <ul class="list-disc pl-5 text-sm text-slate-700 space-y-1">
+                                <li>Query active Sales Reps within the Lead's Target Country group.</li>
+                                <li>Check `Leave_Status` toggle. If TRUE, skip user.</li>
+                                <li>Assign to the valid user with the oldest `Last_Assigned_Timestamp`.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-10">
+                    <h3 class="text-xl font-black text-emerald-700 mb-4 flex items-center"><span class="bg-emerald-100 text-emerald-800 w-8 h-8 rounded flex items-center justify-center mr-3">M2</span> After-Sales Renewal Engine</h3>
+                    <div class="pl-11 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border border-emerald-200 p-5 rounded-xl bg-white shadow-sm relative">
+                            <div class="absolute top-0 right-0 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-xl">CRON JOB</div>
+                            <h4 class="font-bold text-slate-800 mt-2 mb-3">Dynamic Escalation Tracker</h4>
+                            <p class="text-sm text-slate-600 mb-3">System runs a daily check against the `Certificate_Expiry_Date` field.</p>
+                            <div class="bg-emerald-50 border border-emerald-100 rounded p-3 text-sm text-emerald-800 font-medium">
+                                <strong>Rule A:</strong> Standard Certificate ➔ Alert at T-30 Days.<br>
+                                <strong>Rule B:</strong> SQM Certificate ➔ Alert at T-7 Months.
+                            </div>
+                        </div>
+                        <div class="border border-emerald-200 p-5 rounded-xl bg-white shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-3">One-Click Conversion Workflow</h4>
+                            <p class="text-sm text-slate-600 mb-4">UI must provide a 'RENEW' button on expiring records. Clicking this executes the following transaction:</p>
+                            <ol class="list-decimal pl-4 text-sm text-slate-700 space-y-2 font-medium">
+                                <li>Generate new Deal record in Pipeline.</li>
+                                <li>Clone Facility mapping.</li>
+                                <li>Clone Client/Broker mapping.</li>
+                                <li>Tag source as "Auto-Renewal".</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-black text-indigo-700 mb-4 flex items-center"><span class="bg-indigo-100 text-indigo-800 w-8 h-8 rounded flex items-center justify-center mr-3">M3</span> Cascading Categorization UI</h3>
+                    <div class="pl-11">
+                        <p class="text-sm text-slate-600 mb-4">To prevent data entry errors, Dropdowns must utilize dynamic cascading logic. Selection in Level 1 filters options in Level 2.</p>
+                        <div class="flex flex-col md:flex-row gap-2 text-center text-sm font-bold">
+                            <div class="bg-slate-100 border border-slate-300 p-3 rounded flex-1">Country<br><span class="text-xs font-normal text-slate-500">UAE</span></div>
+                            <div class="text-slate-400 flex items-center justify-center">➔</div>
+                            <div class="bg-slate-100 border border-slate-300 p-3 rounded flex-1">Authority<br><span class="text-xs font-normal text-slate-500">MoIAT</span></div>
+                            <div class="text-slate-400 flex items-center justify-center">➔</div>
+                            <div class="bg-slate-100 border border-slate-300 p-3 rounded flex-1">Scheme<br><span class="text-xs font-normal text-slate-500">ECAS</span></div>
+                            <div class="text-slate-400 flex items-center justify-center">➔</div>
+                            <div class="bg-slate-100 border border-slate-300 p-3 rounded flex-1">Product<br><span class="text-xs font-normal text-slate-500">Electrical</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="deep-security" class="scroll-mt-10 material-card !border-t-8 !border-rose-600">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-4 border-b-2 border-slate-100 pb-4">4. Security Architecture & RBAC</h2>
+                <p class="text-slate-600 mb-8">Role-Based Access Control matrix governing data visibility and action rights. This enforces row-level privacy for sales representatives.</p>
+
+                <div class="overflow-x-auto mb-8 rounded-xl border border-slate-200">
+                    <table class="w-full text-left data-table">
+                        <thead class="bg-slate-800">
+                            <tr>
+                                <th class="!bg-slate-800 !text-white">System Feature / Action</th>
+                                <th class="!bg-slate-800 !text-white text-center">Administrator</th>
+                                <th class="!bg-slate-800 !text-white text-center">Branch Manager</th>
+                                <th class="!bg-slate-800 !text-white text-center">Sales Rep</th>
+                                <th class="!bg-slate-800 !text-white text-center">Marketing</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            <tr>
+                                <td class="font-bold text-slate-800">Manage Users & Roles</td>
+                                <td class="text-center text-emerald-500 font-bold">FULL</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800">Import/Export CSV Bulk</td>
+                                <td class="text-center text-emerald-500 font-bold">FULL</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                                <td class="text-center text-emerald-500 font-bold">IMPORT ONLY</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800">Delete Records (Hard)</td>
+                                <td class="text-center text-emerald-500 font-bold">FULL</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800">Override Record Ownership</td>
+                                <td class="text-center text-emerald-500 font-bold">FULL</td>
+                                <td class="text-center text-emerald-500 font-bold">TEAM ONLY</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                                <td class="text-center text-rose-400 font-bold">DENIED</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800">View KPI Dashboards</td>
+                                <td class="text-center text-emerald-500 font-bold">GLOBAL</td>
+                                <td class="text-center text-emerald-500 font-bold">TEAM ONLY</td>
+                                <td class="text-center text-amber-500 font-bold">OWN ONLY</td>
+                                <td class="text-center text-amber-500 font-bold">ROI DATA</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-slate-50 border-l-4 border-slate-400 p-6 rounded-r-xl">
+                    <h3 class="font-bold text-slate-800 mb-2">Immutable Audit Logging</h3>
+                    <p class="text-sm text-slate-600 mb-3">Every database transaction (Create, Edit, State Change) automatically writes to an append-only Audit Log. Essential for compliance and dispute resolution.</p>
+                    <p class="text-xs font-mono text-slate-500 bg-slate-200 p-2 rounded">LOG ENTRY: [2026-04-20 14:32:01] User UUID_892 changed Deal_ID_445 Stage from "Proposal" to "Won".</p>
+                </div>
+
+            </section>
+
+            <section id="deep-sprints" class="scroll-mt-10 material-card !border-t-8 !border-purple-600">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-8 border-b-2 border-slate-100 pb-4">5. Tactical Sprint Delivery Plan</h2>
+                
+                <div class="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-1 before:bg-gradient-to-b before:from-purple-600 before:to-indigo-200 mt-8">
+                    
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-full border-4 border-white bg-purple-600 shadow-md shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                            <span class="text-white font-black text-lg">1</span>
+                        </div>
+                        <div class="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] bg-white p-6 rounded-2xl shadow-md border border-slate-200 hover:border-purple-400 transition-colors">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-black text-slate-800 text-xl">Foundation Phase</h3>
+                                <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded">Week 1-2</span>
+                            </div>
+                            <ul class="text-sm text-slate-600 space-y-2 font-medium">
+                                <li>✓ Database setup & Entity schema creation.</li>
+                                <li>✓ GulfTIC corporate branding application.</li>
+                                <li>✓ RBAC Configuration & User account generation.</li>
+                                <li>✓ Core Leads Management UI implementation.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mt-6">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-full border-4 border-white bg-indigo-500 shadow-md shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                            <span class="text-white font-black text-lg">2</span>
+                        </div>
+                        <div class="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] bg-white p-6 rounded-2xl shadow-md border border-slate-200 hover:border-indigo-400 transition-colors">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-black text-slate-800 text-xl">Execution Architecture</h3>
+                                <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded">Week 3-4</span>
+                            </div>
+                            <ul class="text-sm text-slate-600 space-y-2 font-medium">
+                                <li>✓ Facility & Client separation logic (Broker Toggle).</li>
+                                <li>✓ Website API integration for automated intake.</li>
+                                <li>✓ Round Robin lead distribution algorithm.</li>
+                                <li>✓ Kanban board visual deployment.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mt-6">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-full border-4 border-white bg-cyan-500 shadow-md shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                            <span class="text-white font-black text-lg">3</span>
+                        </div>
+                        <div class="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] bg-white p-6 rounded-2xl shadow-md border border-slate-200 hover:border-cyan-400 transition-colors">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-black text-slate-800 text-xl">Control & Validation</h3>
+                                <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded">Week 5-6</span>
+                            </div>
+                            <ul class="text-sm text-slate-600 space-y-2 font-medium">
+                                <li>✓ MoIAT / International cascading category logic.</li>
+                                <li>✓ Mandatory "Closing Reason" validation blocks.</li>
+                                <li>✓ SLA 96-hour activity background worker.</li>
+                                <li>✓ RBAC-scoped Management KPI Dashboards.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mt-6">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-full border-4 border-white bg-emerald-500 shadow-md shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                            <span class="text-white font-black text-lg">4</span>
+                        </div>
+                        <div class="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] bg-white p-6 rounded-2xl shadow-md border border-slate-200 hover:border-emerald-400 transition-colors">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-black text-slate-800 text-xl">Retention & Future-Proofing</h3>
+                                <span class="bg-slate-100 text-slate-500 text-xs font-bold px-2 py-1 rounded">Week 7-8</span>
+                            </div>
+                            <ul class="text-sm text-slate-600 space-y-2 font-medium">
+                                <li>✓ Expiry tracking CRON engine (30d / 7m).</li>
+                                <li>✓ One-click renewal conversion script.</li>
+                                <li>✓ Pending CTO Approval: WhatsApp Web API.</li>
+                                <li>✓ Full system QA, UAT, and Go-Live.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Tabs Logic
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => {
+                        t.classList.remove('tab-active');
+                        t.classList.replace('text-indigo-600', 'text-slate-500');
+                    });
+                    
+                    contents.forEach(c => {
+                        c.classList.add('hidden');
+                        c.classList.remove('animate-fade-in');
+                    });
+
+                    tab.classList.add('tab-active');
+                    tab.classList.replace('text-slate-500', 'text-indigo-600');
+                    const targetContent = document.getElementById(tab.dataset.tab);
+                    targetContent.classList.remove('hidden');
+                    // Small hack to restart animation
+                    void targetContent.offsetWidth; 
+                    targetContent.classList.add('animate-fade-in');
+                });
+            });
+
+            // Add simple fade-in keyframes dynamically
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(5px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fadeIn 0.4s ease-out forwards;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Broker Toggle Logic
+            const brokerToggle = document.getElementById('brokerToggle');
+            const brokerBg = document.getElementById('brokerBg');
+            const brokerDot = document.getElementById('brokerDot');
+            const brokerStatus = document.getElementById('brokerStatus');
+            const clientDescBox = document.getElementById('clientDescBox');
+
+            brokerToggle.addEventListener('change', (e) => {
+                if(e.target.checked) {
+                    brokerBg.classList.replace('bg-slate-300', 'bg-indigo-600');
+                    brokerDot.style.transform = 'translateX(24px)';
+                    brokerStatus.textContent = 'Yes (External Broker)';
+                    brokerStatus.classList.replace('bg-slate-200', 'bg-indigo-100');
+                    brokerStatus.classList.replace('text-slate-600', 'text-indigo-800');
+                    
+                    clientDescBox.innerHTML = `
+                        <h4 class="font-extrabold text-indigo-800 mb-2 text-lg">External Broker Agency</h4>
+                        <p class="text-indigo-600 text-sm leading-relaxed">A third-party agency handling transactions on behalf of one or more disconnected Facilities. Invoices are directed here.</p>
+                    `;
+                    clientDescBox.classList.replace('border-slate-200', 'border-indigo-300');
+                    clientDescBox.classList.add('bg-indigo-50');
+                } else {
+                    brokerBg.classList.replace('bg-indigo-600', 'bg-slate-300');
+                    brokerDot.style.transform = 'translateX(0)';
+                    brokerStatus.textContent = 'No (Internal Contact)';
+                    brokerStatus.classList.replace('bg-indigo-100', 'bg-slate-200');
+                    brokerStatus.classList.replace('text-indigo-800', 'text-slate-600');
+                    
+                    clientDescBox.innerHTML = `
+                        <h4 class="font-extrabold text-slate-800 mb-2 text-lg">Internal Employee</h4>
+                        <p class="text-slate-500 text-sm leading-relaxed">This contact works directly inside the associated Facility. Communications and invoices are handled directly with the manufacturer.</p>
+                    `;
+                    clientDescBox.classList.replace('border-indigo-300', 'border-slate-200');
+                    clientDescBox.classList.remove('bg-indigo-50');
+                }
+            });
+
+            // SLA Simulator Logic
+            const slaSlider = document.getElementById('slaSlider');
+            const slaCard = document.getElementById('slaCard');
+            const slaIcon = document.getElementById('slaIcon');
+            const slaBgIcon = document.getElementById('slaBgIcon');
+            const slaTitle = document.getElementById('slaTitle');
+            const slaDesc = document.getElementById('slaDesc');
+
+            slaSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                slaCard.className = 'p-8 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center justify-center min-h-[180px] shadow-sm relative overflow-hidden';
+
+                if(val < 24) {
+                    slaCard.classList.add('border-emerald-500', 'bg-emerald-50');
+                    slaIcon.textContent = '✅';
+                    slaBgIcon.textContent = '🛡️';
+                    slaTitle.textContent = 'Healthy Pipeline Deal';
+                    slaTitle.className = 'font-black text-xl text-emerald-800 tracking-tight';
+                    slaDesc.textContent = 'Activity logged within 24h. The sales process is active and on track.';
+                    slaDesc.className = 'text-sm font-medium text-emerald-600 text-center mt-3 max-w-xs';
+                } 
+                else if (val >= 24 && val < 48) {
+                    slaCard.classList.add('border-cyan-500', 'bg-cyan-50');
+                    slaIcon.textContent = '🔔';
+                    slaBgIcon.textContent = '👀';
+                    slaTitle.textContent = 'Rule 1: Manager Alert';
+                    slaTitle.className = 'font-black text-xl text-cyan-800 tracking-tight';
+                    slaDesc.textContent = '>24h passed. Manager dashboard notified of inactive new lead to prevent leakage.';
+                    slaDesc.className = 'text-sm font-medium text-cyan-600 text-center mt-3 max-w-xs';
+                }
+                else if (val >= 48 && val < 96) {
+                    slaCard.classList.add('border-amber-500', 'bg-amber-50');
+                    slaIcon.textContent = '⏱️';
+                    slaBgIcon.textContent = '⏳';
+                    slaTitle.textContent = 'Rule 2: Owner Reminder';
+                    slaTitle.className = 'font-black text-xl text-amber-800 tracking-tight';
+                    slaDesc.textContent = '>48h passed. Automated reminder sent directly to the assigned Sales Rep.';
+                    slaDesc.className = 'text-sm font-medium text-amber-600 text-center mt-3 max-w-xs';
+                }
+                else if (val >= 96) {
+                    slaCard.classList.add('border-rose-500', 'bg-rose-50');
+                    slaIcon.textContent = '🛑';
+                    slaBgIcon.textContent = '⚠️';
+                    slaTitle.textContent = 'Rule 3: Neglect Breach';
+                    slaTitle.className = 'font-black text-xl text-rose-800 tracking-tight';
+                    slaDesc.textContent = '>96h with no movement. Red warning badge applied system-wide. SLA failed.';
+                    slaDesc.className = 'text-sm font-medium text-rose-600 text-center mt-3 max-w-xs';
+                }
+            });
+
+            // Radar Chart Logic
+            const ctx = document.getElementById('gapRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Lead Capture (Web/Email)', 
+                        'Data Deduplication', 
+                        'Pipeline Visualization', 
+                        'Quotation Structuring', 
+                        'Renewal Alerts', 
+                        'Campaign Analytics'
+                    ],
+                    datasets: [{
+                        label: 'Required CRM Standard',
+                        data: [100, 100, 100, 100, 100, 100],
+                        backgroundColor: 'rgba(79, 70, 229, 0.15)', // Indigo-600
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        pointBackgroundColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Assessed Odoo Capability',
+                        data: [10, 60, 40, 30, 20, 10],
+                        backgroundColor: 'rgba(225, 29, 72, 0.3)', // Rose-600
+                        borderColor: 'rgba(225, 29, 72, 1)',
+                        pointBackgroundColor: 'rgba(225, 29, 72, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            pointLabels: {
+                                font: { family: "'Inter', sans-serif", size: 11, weight: 'bold' },
+                                color: '#475569'
+                            },
+                            ticks: { display: false, min: 0, max: 100 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { family: "'Inter', sans-serif", weight: 'bold' } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { family: "'Inter', sans-serif", size: 13 },
+                            bodyFont: { family: "'Inter', sans-serif", size: 12 },
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    const notes = {
+                                        'Lead Capture (Web/Email)': 'Odoo: No website/email integration observed.',
+                                        'Data Deduplication': 'Odoo: Merging exists, but duplicate detection not robustly verified.',
+                                        'Pipeline Visualization': 'Odoo: UI issues, IT needed to fix dashboard visibility.',
+                                        'Quotation Structuring': 'Odoo: Messy; MoIAT mixed with other country regulations.',
+                                        'Renewal Alerts': 'Odoo: Not confirmed in current setup.',
+                                        'Campaign Analytics': 'Odoo: No campaign performance analytics verified.'
+                                    };
+                                    let label = context.dataset.label || '';
+                                    if(context.datasetIndex === 1) {
+                                        return notes[context.label] || label;
+                                    }
+                                    return label + ': ' + context.parsed.r + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Active State for Navigation on Scroll
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mainContent = document.getElementById('main-content');
+
+            mainContent.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (mainContent.scrollTop >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('nav-active');
+                    if (link.getAttribute('data-target') === current) {
+                        link.classList.add('nav-active');
+                    }
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>

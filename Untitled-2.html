@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GulfTIC CRM Phase 1 - Ultimate BRD & Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        /* * GLOBAL STYLES & RESET 
+         */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        /* * UTILITY CLASSES 
+         */
+        .hide-scrollbar::-webkit-scrollbar { 
+            display: none; 
+        }
+        
+        .hide-scrollbar { 
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+        }
+
+        /* * NAVIGATION COMPONENT STYLES 
+         */
+        .nav-active {
+            background-color: #e2e8f0;
+            color: #0369a1;
+            font-weight: 700;
+            border-left: 4px solid #0369a1;
+        }
+        
+        .tab-active {
+            border-bottom: 3px solid #4f46e5;
+            color: #4f46e5;
+            font-weight: 800;
+            background-color: #f8fafc;
+        }
+
+        /* * PIPELINE FUNNEL COMPONENT 
+         */
+        .funnel-stage {
+            clip-path: polygon(0% 0%, 100% 0%, 95% 100%, 5% 100%);
+            margin-bottom: 4px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .funnel-stage:hover {
+            transform: scale(1.02) translateY(-2px);
+            z-index: 10;
+        }
+
+        /* * MATERIAL DESIGN CARDS 
+         */
+        .material-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid #f1f5f9;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .material-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* * DATA NODE BOXES 
+         */
+        .node-box {
+            background-color: #ffffff;
+            border-left: 4px solid #4f46e5;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-top: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            transition: transform 0.2s ease;
+        }
+        
+        .node-box:hover {
+            transform: translateX(4px);
+        }
+
+        /* * DATA TABLES 
+         */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .data-table th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.25rem;
+            border-bottom: 2px solid #cbd5e1;
+            text-align: left;
+        }
+        
+        .data-table td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 0.875rem;
+            vertical-align: top;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover td {
+            background-color: #f1f5f9;
+        }
+
+        /* * STATUS BADGES 
+         */
+        .badge-mandatory {
+            background-color: #ffe4e6;
+            color: #e11d48;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            border: 1px solid #fecdd3;
+        }
+        
+        .badge-optional {
+            background-color: #f1f5f9;
+            color: #64748b;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .badge-system {
+            background-color: #fef3c7;
+            color: #d97706;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            border: 1px solid #fde68a;
+        }
+
+        /* * UI BUTTON COMPONENTS (FOR DOC VISUALS)
+         */
+        .btn-ui {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            cursor: default;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        .btn-danger { background-color: #fff1f2; color: #e11d48; border: 1px solid #fda4af; }
+        .btn-success { background-color: #ecfdf5; color: #059669; border: 1px solid #6ee7b7; }
+        .btn-neutral { background-color: #ffffff; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-info { background-color: #eff6ff; color: #2563eb; border: 1px solid #93c5fd; }
+        .btn-primary { background-color: #4f46e5; color: #ffffff; border: 1px solid #4338ca; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <nav class="w-80 bg-slate-900 border-r border-slate-800 h-full flex flex-col shadow-xl shrink-0 z-20 hidden lg:flex">
+        <div class="p-6 border-b border-slate-800 bg-slate-950">
+            <h1 class="text-2xl font-black text-white tracking-tight">GulfTIC CRM</h1>
+            <p class="text-xs text-indigo-400 mt-1 uppercase font-bold tracking-widest">Phase 1 BRD Synthesis</p>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-6 hide-scrollbar">
+            <ul class="space-y-1">
+                <li class="px-6 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">Strategic Overview</li>
+                <li><a href="#exec-summary" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors nav-active" data-target="exec-summary">📊 Executive Summary</a></li>
+                <li><a href="#deep-exec" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="deep-exec">👥 Roles & Stakeholders</a></li>
+                
+                <li class="mt-6 mb-2 px-6 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-t border-slate-800 pt-6">System Architecture</li>
+                <!-- <li><a href="#architecture" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="architecture">🏛️ Core Entities Map</a></li> -->
+                <li><a href="#pipeline-slas" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="pipeline-slas">⚙️ Pipeline & SLA Engine</a></li>
+                
+                <li class="mt-6 mb-2 px-6 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-t border-slate-800 pt-6">Deep Dive Modules</li>
+                <li><a href="#module-leads" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="module-leads">📌 1. Leads Module</a></li>
+                <li><a href="#module-deals" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="module-deals">💰 2. Deals / Opportunities</a></li>
+                <li><a href="#module-sales" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="module-sales">🏢 3. Accounts & Contacts</a></li>
+                <li><a href="#module-ops" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="module-ops">📋 4. Tasks & Dashboards</a></li>
+                
+                <li class="mt-6 mb-2 px-6 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-t border-slate-800 pt-6">Technical & Delivery</li>
+                <li><a href="#deep-data" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="deep-data">📖 Data Dictionary</a></li>
+                <li><a href="#deep-security" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="deep-security">🔐 Security</a></li>
+                <li><a href="#deep-sprints" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="deep-sprints">🚀 Sprint Roadmap</a></li>
+                <li class="mt-6 mb-2 px-6 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-t border-slate-800 pt-6">Phase 2: Implementation</li>
+
+                <li><a href="#deep-sprints" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="deep-sprints">Email</a></li>
+                <li><a href="#deep-sprints" class="nav-link block py-3 px-6 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors" data-target="deep-sprints">WhatsApp</a></li>
+
+            </ul>
+        </div>
+        
+        <div class="p-6 border-t border-slate-800 bg-slate-950 text-xs text-slate-500 text-center font-bold">
+            Full BRD Specification<br>
+            <span class="text-indigo-500">v1.0 (Final Architecture)</span>
+        </div>
+    </nav>
+
+    <main class="flex-1 h-full overflow-y-auto scroll-smooth relative bg-[#f1f5f9]" id="main-content">
+        
+        <header class="lg:hidden bg-slate-900 p-4 sticky top-0 z-30 flex justify-between items-center shadow-md">
+            <h1 class="text-lg font-black text-white">GulfTIC CRM BRD</h1>
+            <span class="text-xl text-indigo-400">≡</span>
+        </header>
+
+        <div class="max-w-7xl mx-auto p-4 sm:p-6 md:p-12 space-y-24 pb-40">
+
+            <section id="exec-summary" class="scroll-mt-10">
+                <div class="mb-10 text-center md:text-left">
+                    <h2 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">Executive Summary & Objectives</h2>
+                    <p class="text-slate-600 text-xl max-w-4xl leading-relaxed">The Phase 1 CRM implementation mandates the creation of a centralized, structurally rigid sales environment to eliminate lead leakage, enforce accountability, and establish automated operational rules.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="material-card border-t-8 border-rose-500 hover:-translate-y-1 transition-transform duration-300">
+                        <div class="flex items-center mb-6 border-b border-slate-100 pb-4">
+                            <div class="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 text-2xl mr-4">⚠️</div>
+                            <h3 class="text-lg font-black text-slate-800 uppercase tracking-widest">Current Problems</h3>
+                        </div>
+                        <ul class="space-y-5 text-slate-700">
+                            <li class="flex items-start">
+                                <span class="mr-4 text-rose-500 mt-1">🔴</span> 
+                                <div>
+                                    <strong class="block text-slate-900">Data Leakage & Fragmentation</strong>
+                                    <span class="text-sm">Leads are currently scattered across Excel sheets, WhatsApp messages, and unmonitored emails.</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-4 text-rose-500 mt-1">🔴</span> 
+                                <div>
+                                    <strong class="block text-slate-900">No Accountability Framework</strong>
+                                    <span class="text-sm">Lack of clear assignment logic, ownership clarity, and SLA enforcement for sales follow-ups.</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-4 text-rose-500 mt-1">🔴</span> 
+                                <div>
+                                    <strong class="block text-slate-900">Compromised Data Integrity</strong>
+                                    <span class="text-sm">Severe duplicate client issues exist due to the absence of a standardized database and merging rules.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="material-card border-t-8 border-emerald-500 hover:-translate-y-1 transition-transform duration-300">
+                        <div class="flex items-center mb-6 border-b border-slate-100 pb-4">
+                            <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-2xl mr-4">🎯</div>
+                            <h3 class="text-lg font-black text-slate-800 uppercase tracking-widest">Business Goals</h3>
+                        </div>
+                        <ul class="space-y-5 text-slate-700">
+                            <li class="flex items-start">
+                                <span class="mr-4 text-emerald-500 mt-1">🟢</span> 
+                                <div>
+                                    <strong class="block text-slate-900">Absolute Centralization</strong>
+                                    <span class="text-sm">Unify all incoming leads, clients, and transactional data into a single, secure, and auditable system.</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-4 text-emerald-500 mt-1">🟢</span> 
+                                <div>
+                                    <strong class="block text-slate-900">Automated Accountability (SLAs)</strong>
+                                    <span class="text-sm">Establish systemic rules that automatically flag neglected leads and notify management of pipeline stagnation.</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-4 text-emerald-500 mt-1">🟢</span> 
+                                <div>
+                                    <strong class="block text-slate-900">Real-Time Business Intelligence</strong>
+                                    <span class="text-sm">Enable management to view live KPI dashboards filtered dynamically by branch, team, or individual rep.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="deep-exec" class="scroll-mt-10 material-card !border-t-8 !border-indigo-600 !p-0 overflow-hidden">
+                <div class="bg-indigo-900 p-8 text-white">
+                    <h2 class="text-3xl font-black mb-2 tracking-tight">1. Roles & Stakeholders Matrix</h2>
+                    <p class="text-indigo-200">Defining the actors within the system and their primary operational objectives.</p>
+                </div>
+                
+                <div class="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-white">
+                    
+                    <div class="border border-slate-200 rounded-xl p-6 bg-slate-50 shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-slate-200 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">⚙️</span></div>
+                        <h4 class="font-black text-xl text-slate-900 mb-1">Administrator</h4>
+                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Technical Control</p>
+                        <p class="text-sm text-slate-600 mb-2"><strong>Goal:</strong> Technical configuration, user management, and system maintenance.</p>
+                        <p class="text-sm text-slate-600"><strong>Scope:</strong> Absolute access to all modules, settings, and destructive actions.</p>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl p-6 bg-indigo-50 shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-indigo-200 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">👁️</span></div>
+                        <h4 class="font-black text-xl text-slate-900 mb-1">Manager (Global)</h4>
+                        <p class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-4">Executive Oversight</p>
+                        <p class="text-sm text-slate-600 mb-2"><strong>Goal:</strong> View and monitor everything across the entire company without accidentally altering data.</p>
+                        <p class="text-sm text-slate-600"><strong>Scope:</strong> Has "View All" permissions across every single module, branch, and dashboard. <strong>Cannot</strong> edit, create, or delete records.</p>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl p-6 bg-white shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-cyan-50 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">📊</span></div>
+                        <h4 class="font-black text-xl text-slate-900 mb-1">Sales Manager</h4>
+                        <p class="text-[10px] font-black text-cyan-600 uppercase tracking-widest mb-4">Branch Operations</p>
+                        <p class="text-sm text-slate-600 mb-2"><strong>Goal:</strong> Team oversight, workload balancing, and SLA enforcement.</p>
+                        <p class="text-sm text-slate-600"><strong>Scope:</strong> Hierarchical view of the assigned branch team. Can re-assign leads and view team KPIs.</p>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl p-6 bg-white shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-blue-50 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">💼</span></div>
+                        <h4 class="font-black text-xl text-slate-900 mb-1">Sales Representative</h4>
+                        <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4">Pipeline Execution</p>
+                        <p class="text-sm text-slate-600 mb-2"><strong>Goal:</strong> Conversion of assigned leads efficiently through the pipeline.</p>
+                        <p class="text-sm text-slate-600"><strong>Scope:</strong> Siloed view. Only sees owned/assigned records. Logs activities and manages own tasks.</p>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl p-6 bg-white shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-50 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">♻️</span></div>
+                        <h4 class="font-black text-xl text-slate-900 mb-1">After-Sales Specialist</h4>
+                        <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4">Client Retention</p>
+                        <p class="text-sm text-slate-600 mb-2"><strong>Goal:</strong> Proactive renewal management before certificate expiry.</p>
+                        <p class="text-sm text-slate-600"><strong>Scope:</strong> Access to "Won" deals, expiry trackers, and renewal workflows.</p>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl p-6 bg-white shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-bl-full flex items-start justify-end p-3"><span class="text-xl">💰</span></div>
+                        <h4 class="font-black text-xl text-slate-900 mb-1">Finance Department</h4>
+                        <p class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-4">Revenue Control</p>
+                        <p class="text-sm text-slate-600 mb-2"><strong>Goal:</strong> Accurate revenue forecasting and quotation standardization.</p>
+                        <p class="text-sm text-slate-600"><strong>Scope:</strong> Access to quotes, scheme-specific pricing rules, and discount approvals.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pipeline-slas" class="scroll-mt-10">
+                <div class="mb-10">
+                    <h2 class="text-4xl font-black text-slate-900 mb-4 tracking-tight">Pipeline & SLA Engine</h2>
+                    <p class="text-slate-600 text-xl max-w-4xl">The systemic heartbeat of the CRM. Defines the rigid sales stages and the automated background workers that enforce timely follow-ups.</p>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <div class="material-card border-t-8 border-cyan-500 !p-8">
+                        <h3 class="font-black text-slate-800 mb-8 uppercase tracking-widest text-sm flex items-center border-b-2 border-slate-100 pb-4">
+                            <span class="bg-cyan-100 text-cyan-700 w-8 h-8 rounded-full flex items-center justify-center mr-3">1</span> Approved Pipeline Stages
+                        </h3>
+                        
+                        <div class="w-full h-80 flex flex-col items-center justify-center space-y-1.5">
+                            <div class="funnel-stage w-full bg-slate-100 text-slate-700 font-black text-center py-3.5 text-sm uppercase tracking-wide">1. New Inquiry</div>
+                            <div class="funnel-stage w-11/12 bg-indigo-100 text-indigo-800 font-black text-center py-3.5 text-sm uppercase tracking-wide">2. Contacted / Qualified</div>
+                            <div class="funnel-stage w-5/6 bg-indigo-300 text-indigo-900 font-black text-center py-3.5 text-sm uppercase tracking-wide">3. Proposal / Scope</div>
+                            <div class="funnel-stage w-3/4 bg-indigo-500 text-white font-black text-center py-3.5 text-sm uppercase tracking-wide">4. Quotation Sent</div>
+                            <div class="funnel-stage w-2/3 bg-indigo-700 text-white font-black text-center py-3.5 text-sm uppercase tracking-wide">5. Negotiation</div>
+                            <div class="funnel-stage w-1/2 bg-emerald-500 text-white font-black text-center py-3.5 text-sm uppercase tracking-widest">6. Won / Lost</div>
+                        </div>
+                        
+                        <div class="mt-8 p-5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600 font-medium">
+                            <span class="text-amber-500 text-lg mr-2 inline-block mb-2">💡 Note on Renewals:</span>
+                            <p class="pl-7">Renewal Opportunities automatically bypass the initial inquiry stages. They are generated with historical data and jump directly to active engagement stages.</p>
+                        </div>
+                    </div>
+
+                    <div class="material-card border-t-8 border-amber-500 !p-8">
+                        <h3 class="font-black text-slate-800 mb-6 uppercase tracking-widest text-sm flex items-center border-b-2 border-slate-100 pb-4">
+                            <span class="bg-amber-100 text-amber-700 w-8 h-8 rounded-full flex items-center justify-center mr-3">2</span> SLA Neglect Simulator
+                        </h3>
+                        <p class="text-sm text-slate-600 mb-8 font-medium leading-relaxed">The CRM runs a background worker checking the `Last_Activity_Date` of open deals. Move the slider to see how the system reacts to neglect over time.</p>
+                        
+                        <div class="px-2 mb-12">
+                            <input type="range" min="0" max="100" value="0" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" id="slaSlider">
+                            <div class="flex justify-between text-xs font-black text-slate-400 mt-4 px-1">
+                                <span>0h</span>
+                                <span>24h</span>
+                                <span>48h</span>
+                                <span>96h+</span>
+                            </div>
+                        </div>
+
+                        <div id="slaCard" class="p-8 rounded-2xl border-2 border-emerald-500 bg-emerald-50 transition-all duration-500 flex flex-col items-center justify-center min-h-[220px] shadow-inner relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 opacity-10 text-9xl pointer-events-none" id="slaBgIcon">🛡️</div>
+                            <div class="text-6xl mb-4 drop-shadow-md" id="slaIcon">✅</div>
+                            <h4 class="font-black text-2xl text-emerald-800 tracking-tight text-center" id="slaTitle">Healthy Pipeline Deal</h4>
+                            <p class="text-sm font-bold text-emerald-600 text-center mt-3 max-w-sm" id="slaDesc">Recent activity logged. The sales process is active and on track.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="relative py-8">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t-4 border-slate-300"></div>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="px-8 bg-[#f1f5f9] text-3xl font-black text-indigo-900 uppercase tracking-widest py-2">Deep Dive Modules</span>
+                </div>
+            </div>
+
+            <div class="bg-indigo-900 rounded-2xl p-8 text-white shadow-lg mb-12">
+                <h3 class="text-2xl font-black mb-4 border-b border-indigo-700 pb-4">Full System Modules Roster</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div class="bg-indigo-800/50 p-4 rounded-lg font-bold border-l-4 border-amber-400">1. Leads</div>
+                    <div class="bg-indigo-800/50 p-4 rounded-lg font-bold border-l-4 border-indigo-400">2. Deals / Opportunities</div>
+                    <div class="bg-indigo-800/50 p-4 rounded-lg font-bold border-l-4 border-cyan-400">3. Accounts / Clients</div>
+                    <div class="bg-indigo-800/50 p-4 rounded-lg font-bold border-l-4 border-blue-400">4. Contacts / Facilities</div>
+                    <div class="bg-indigo-800/50 p-4 rounded-lg font-bold border-l-4 border-emerald-400">5. Tasks / Follow-ups</div>
+                    <div class="bg-indigo-800/50 p-4 rounded-lg font-bold border-l-4 border-purple-400">6. Dashboards</div>
+                    <div class="bg-indigo-800/50 p-4 rounded-lg font-bold border-l-4 border-rose-400">7. User Roles</div>
+                </div>
+            </div>
+
+            <section id="module-leads" class="scroll-mt-10 material-card !border-t-8 !border-amber-400 !p-0 overflow-hidden">
+                <div class="bg-amber-50 p-6 border-b border-amber-100 flex items-center">
+                    <div class="w-12 h-12 bg-amber-500 text-white rounded-lg flex items-center justify-center text-2xl font-black shadow-md mr-4">1</div>
+                    <div>
+                        <h2 class="text-2xl font-black text-amber-900 tracking-tight">Leads Module</h2>
+                        <p class="text-amber-700 text-sm font-bold">The primary intake engine for all unqualified prospects.</p>
+                    </div>
+                </div>
+                
+                <div class="p-8">
+                    <h3 class="font-black text-slate-800 mb-4 text-lg uppercase tracking-widest border-b-2 border-slate-100 pb-2">Requested Fields</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+                        <div class="node-box border-l-rose-500 bg-rose-50/50"><span class="badge-mandatory mb-2 inline-block">Mandatory</span><br><span class="font-bold text-slate-800 text-sm">service_interest / opportunity_name</span></div>
+                        <div class="node-box border-l-rose-500 bg-rose-50/50"><span class="badge-mandatory mb-2 inline-block">Mandatory</span><br><span class="font-bold text-slate-800 text-sm">name (first, last)</span></div>
+                        <div class="node-box border-l-rose-500 bg-rose-50/50"><span class="badge-mandatory mb-2 inline-block">Mandatory</span><br><span class="font-bold text-slate-800 text-sm">phone</span></div>
+                        <div class="node-box border-l-rose-500 bg-rose-50/50"><span class="badge-mandatory mb-2 inline-block">Mandatory</span><br><span class="font-bold text-slate-800 text-sm">email</span></div>
+                        
+                        <div class="node-box"><span class="badge-optional mb-2 inline-block">User Input</span><br><span class="font-bold text-slate-800 text-sm">job position</span></div>
+                        <div class="node-box"><span class="badge-optional mb-2 inline-block">User Input</span><br><span class="font-bold text-slate-800 text-sm">Industry</span></div>
+                        <div class="node-box"><span class="badge-optional mb-2 inline-block">User Input</span><br><span class="font-bold text-slate-800 text-sm">address (country, city, state, street1, 2)</span></div>
+                        <div class="node-box"><span class="badge-optional mb-2 inline-block">User Input</span><br><span class="font-bold text-slate-800 text-sm">website</span></div>
+                        <div class="node-box"><span class="badge-optional mb-2 inline-block">User Input</span><br><span class="font-bold text-slate-800 text-sm">language</span></div>
+                        <div class="node-box"><span class="badge-optional mb-2 inline-block">User Input</span><br><span class="font-bold text-slate-800 text-sm">priority</span></div>
+                        <div class="node-box"><span class="badge-optional mb-2 inline-block">User Input</span><br><span class="font-bold text-slate-800 text-sm">tags</span></div>
+                        <div class="node-box"><span class="badge-optional mb-2 inline-block">User Input</span><br><span class="font-bold text-slate-800 text-sm">notes</span></div>
+
+                        <div class="node-box border-l-amber-500 bg-amber-50/50"><span class="badge-system mb-2 inline-block">System Logic</span><br><span class="font-bold text-slate-800 text-sm">owner_name / salesperson / sales_team</span></div>
+                        <div class="node-box border-l-amber-500 bg-amber-50/50"><span class="badge-system mb-2 inline-block">System Logic</span><br><span class="font-bold text-slate-800 text-sm">campaign / source</span></div>
+                        <div class="node-box border-l-amber-500 bg-amber-50/50"><span class="badge-system mb-2 inline-block">System Logic</span><br><span class="font-bold text-slate-800 text-sm">status</span></div>
+                        <div class="node-box border-l-emerald-500 bg-emerald-50/50 md:col-span-2 lg:col-span-3"><span class="badge-system mb-2 inline-block !bg-emerald-100 !text-emerald-700 !border-emerald-300">Auto-Calculated Timestamps</span><br><span class="font-bold text-slate-800 text-sm">assignment_date | closed_date | created_at</span></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 bg-slate-50 p-8 rounded-xl border border-slate-200">
+                        <div>
+                            <h3 class="font-black text-slate-800 mb-4 text-sm uppercase tracking-widest">Required Buttons & Actions</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <div class="btn-ui btn-neutral">➕ New (Create Lead)</div>
+                                <div class="btn-ui btn-neutral">✏️ Edit</div>
+                                <div class="btn-ui btn-info">📅 Task / Activity (Schedule)</div>
+                                <div class="btn-ui btn-danger">❌ Lost (Requires lost_reason)</div>
+                                <div class="btn-ui btn-primary w-full mt-2 py-3 text-center !text-lg uppercase tracking-widest shadow-lg">🚀 Convert to Deal</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-slate-800 mb-4 text-sm uppercase tracking-widest">Required Interface Views</h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg border-2 border-slate-200 shadow-sm flex items-center">
+                                    <div class="text-3xl mr-4 text-slate-400">☰</div>
+                                    <div>
+                                        <strong class="block text-slate-800">List View</strong>
+                                        <span class="text-xs text-slate-500">Standard tabular data grid for bulk operations and filtering.</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border-2 border-slate-200 shadow-sm flex items-center">
+                                    <div class="text-3xl mr-4 text-slate-400">◫</div>
+                                    <div>
+                                        <strong class="block text-slate-800">Kanban View</strong>
+                                        <span class="text-xs text-slate-500">Visual card-based drag-and-drop board organized by Status.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="module-deals" class="scroll-mt-10 material-card !border-t-8 !border-indigo-500 !p-0 overflow-hidden">
+                <div class="bg-indigo-50 p-6 border-b border-indigo-100 flex items-center">
+                    <div class="w-12 h-12 bg-indigo-500 text-white rounded-lg flex items-center justify-center text-2xl font-black shadow-md mr-4">2</div>
+                    <div>
+                        <h2 class="text-2xl font-black text-indigo-900 tracking-tight">Deals / Opportunities Module</h2>
+                        <p class="text-indigo-700 text-sm font-bold">The financial tracking core of the CRM.</p>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <p class="text-slate-600 mb-6 leading-relaxed">Generated exclusively by converting a Lead or manually creating a Renewal. Deals must strictly link to the defined relational entities below.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white border-2 border-dashed border-indigo-300 p-6 rounded-xl text-center">
+                            <div class="text-4xl mb-3">🤝</div>
+                            <strong class="block text-slate-800 mb-2">Relational Link 1</strong>
+                            <span class="text-sm text-slate-500">Must link to the Client/Broker (Payer).</span>
+                        </div>
+                        <div class="bg-white border-2 border-dashed border-indigo-300 p-6 rounded-xl text-center">
+                            <div class="text-4xl mb-3">🏢</div>
+                            <strong class="block text-slate-800 mb-2">Relational Link 2</strong>
+                            <span class="text-sm text-slate-500">Must link to the Facility (Manufacturer).</span>
+                        </div>
+                        <div class="bg-white border-2 border-dashed border-indigo-300 p-6 rounded-xl text-center">
+                            <div class="text-4xl mb-3">💵</div>
+                            <strong class="block text-slate-800 mb-2">Financial Core</strong>
+                            <span class="text-sm text-slate-500">Tracks Stage, Expected Revenue, and Close Date.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="module-sales" class="scroll-mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="material-card !border-t-8 !border-cyan-500 !p-0 overflow-hidden !mb-0">
+                    <div class="bg-cyan-50 p-6 border-b border-cyan-100 flex items-center">
+                        <div class="w-10 h-10 bg-cyan-500 text-white rounded-lg flex items-center justify-center text-xl font-black shadow-md mr-4">3</div>
+                        <h2 class="text-xl font-black text-cyan-900 tracking-tight">Sales: Accounts / Clients</h2>
+                    </div>
+                    <div class="p-8">
+                        <p class="text-sm text-slate-600 mb-6">The billing entities and communication hubs. Contains the critical <strong>"Broker Toggle"</strong> to differentiate third-party agencies from direct manufacturers.</p>
+                        <div class="bg-slate-50 p-4 rounded border border-slate-200 text-sm font-medium text-slate-700">
+                            <strong>Key Concept:</strong> One Account (Broker) can manage multiple Facilities.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="material-card !border-t-8 !border-blue-500 !p-0 overflow-hidden !mb-0" id="module-ops">
+                    <div class="bg-blue-50 p-6 border-b border-blue-100 flex items-center">
+                        <div class="w-10 h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center text-xl font-black shadow-md mr-4">4</div>
+                        <h2 class="text-xl font-black text-blue-900 tracking-tight">Sales: Contacts / Facilities</h2>
+                    </div>
+                    <div class="p-8">
+                        <p class="text-sm text-slate-600 mb-6">The physical manufacturing locations or brands receiving the actual certificate. They do not hold billing information.</p>
+                        <div class="bg-slate-50 p-4 rounded border border-slate-200 text-sm font-medium text-slate-700">
+                            <strong>Key Concept:</strong> A Facility must always inherit from the overarching Company structure but is treated as a separate node in Deals.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                <div class="material-card !border-t-8 !border-emerald-500 !p-0 overflow-hidden !mb-0">
+                    <div class="bg-emerald-50 p-6 border-b border-emerald-100 flex items-center">
+                        <div class="w-10 h-10 bg-emerald-500 text-white rounded-lg flex items-center justify-center text-xl font-black shadow-md mr-4">5</div>
+                        <h2 class="text-xl font-black text-emerald-900 tracking-tight">Tasks / Follow-ups</h2>
+                    </div>
+                    <div class="p-8">
+                        <p class="text-sm text-slate-600 mb-6">The accountability tracker. Users schedule calls, meetings, or emails here. Completion of a task updates the `Last_Activity_Date` on the parent Deal, resetting the SLA 96-hour timer.</p>
+                    </div>
+                </div>
+
+                <div class="material-card !border-t-8 !border-purple-500 !p-0 overflow-hidden !mb-0">
+                    <div class="bg-purple-50 p-6 border-b border-purple-100 flex items-center">
+                        <div class="w-10 h-10 bg-purple-500 text-white rounded-lg flex items-center justify-center text-xl font-black shadow-md mr-4">6</div>
+                        <h2 class="text-xl font-black text-purple-900 tracking-tight">Dashboards</h2>
+                    </div>
+                    <div class="p-8">
+                        <p class="text-sm text-slate-600 mb-6">Visual reporting tools providing real-time BI. Data visibility inside the dashboard is dynamically restricted based on the User Roles matrix (Module 7).</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="deep-data" class="scroll-mt-10 material-card !border-t-8 !border-slate-800">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-4 border-b-2 border-slate-100 pb-4">Data Dictionary (Field Mappings)</h2>
+                <p class="text-slate-600 mb-8">Outlining the explicit user-facing fields for core entities. Technical architecture (Keys, UUIDs) is omitted as per tech team delegation.</p>
+
+                <div class="space-y-8">
+                    <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                        <div class="bg-slate-800 px-6 py-4 border-b border-slate-700">
+                            <h3 class="font-bold text-white text-lg">Leads User Fields</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th style="width: 30%;">Field Name</th><th style="width: 20%;">Requirement</th><th>Business Logic / Notes</th></tr>
+                                </thead>
+                                <tbody class="bg-white">
+                                    <tr><td class="font-bold text-slate-800">service_interest / opportunity_name</td><td><span class="text-rose-600 font-bold">Mandatory</span></td><td>Core identifier for the lead's purpose.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">name (first,last)</td><td><span class="text-rose-600 font-bold">Mandatory</span></td><td>Prospect identity.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">phone</td><td><span class="text-rose-600 font-bold">Mandatory</span></td><td>Primary contact. Drives duplication checks.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">email</td><td><span class="text-rose-600 font-bold">Mandatory</span></td><td>Primary correspondence. Drives duplication checks.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">job position</td><td>Optional</td><td>Contextual data.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">Industry</td><td>Optional</td><td>Contextual data.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">address</td><td>Optional</td><td>Requires parsed mapping (country-city-state-street1-street2).</td></tr>
+                                    <tr><td class="font-bold text-slate-800">website & language</td><td>Optional</td><td>Contextual data.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                        <div class="bg-indigo-900 px-6 py-4 border-b border-indigo-800">
+                            <h3 class="font-bold text-white text-lg">Opportunity (Deals) User Fields</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th style="width: 30%;">Field Name</th><th style="width: 20%;">Requirement</th><th>Business Logic / Notes</th></tr>
+                                </thead>
+                                <tbody class="bg-white">
+                                    <tr><td class="font-bold text-slate-800">Facility / Account Link</td><td><span class="text-rose-600 font-bold">Mandatory</span></td><td>Must select from verified Facility DB.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">Client / Broker Link</td><td><span class="text-rose-600 font-bold">Mandatory</span></td><td>Must select from verified Clients DB.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">Pipeline Stage</td><td><span class="text-rose-600 font-bold">Mandatory</span></td><td>Defines Kanban position.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">Deal Value</td><td>Optional</td><td>Populated upon Quote generation. Used for Weighted KPI.</td></tr>
+                                    <tr><td class="font-bold text-slate-800">Close Reason</td><td>Conditional</td><td><span class="text-amber-600 font-bold">Non-bypassable</span> if Stage = Lost. Pre-defined list only.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="deep-security" class="scroll-mt-10 material-card !border-t-8 !border-rose-600">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-4 border-b-2 border-slate-100 pb-4">Security Architecture & RBAC Matrix</h2>
+                <p class="text-slate-600 mb-8">Role-Based Access Control matrix governing data visibility and action rights across the entire system. Includes the Global Manager role.</p>
+
+                <div class="overflow-x-auto mb-8 rounded-xl border border-slate-200 shadow-sm">
+                    <table class="data-table">
+                        <thead class="bg-slate-900">
+                            <tr>
+                                <th class="!bg-slate-900 !text-white border-r border-slate-700">Action / Feature</th>
+                                <th class="!bg-slate-900 !text-white text-center">Admin</th>
+                                <th class="!bg-slate-900 !text-indigo-300 text-center border-x border-slate-700">Manager (Global)</th>
+                                <th class="!bg-slate-900 !text-white text-center">Sales Manager</th>
+                                <th class="!bg-slate-900 !text-white text-center">Sales Rep</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            <tr>
+                                <td class="font-bold text-slate-800 border-r border-slate-200">View Dashboards</td>
+                                <td class="text-center text-emerald-600 font-black bg-emerald-50">FULL GLOBAL</td>
+                                <td class="text-center text-emerald-600 font-black bg-indigo-50 border-x border-slate-200">FULL GLOBAL</td>
+                                <td class="text-center text-emerald-600 font-black bg-slate-50">TEAM SCOPE</td>
+                                <td class="text-center text-amber-500 font-black">OWN ONLY</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800 border-r border-slate-200">View Records (Read)</td>
+                                <td class="text-center text-emerald-600 font-black bg-emerald-50">ALL</td>
+                                <td class="text-center text-emerald-600 font-black bg-indigo-50 border-x border-slate-200">ALL</td>
+                                <td class="text-center text-emerald-600 font-black bg-slate-50">TEAM SCOPE</td>
+                                <td class="text-center text-amber-500 font-black">OWN ONLY</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800 border-r border-slate-200">Edit / Create Records</td>
+                                <td class="text-center text-emerald-600 font-black bg-emerald-50">ALL</td>
+                                <td class="text-center text-rose-500 font-black bg-rose-50 border-x border-slate-200">DENIED</td>
+                                <td class="text-center text-emerald-600 font-black bg-slate-50">TEAM SCOPE</td>
+                                <td class="text-center text-emerald-600 font-black">OWN ONLY</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800 border-r border-slate-200">Delete Records</td>
+                                <td class="text-center text-emerald-600 font-black bg-emerald-50">ALL</td>
+                                <td class="text-center text-rose-500 font-black bg-rose-50 border-x border-slate-200">DENIED</td>
+                                <td class="text-center text-rose-500 font-black bg-slate-50">DENIED</td>
+                                <td class="text-center text-rose-500 font-black">DENIED</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-800 border-r border-slate-200">Reassign Ownership</td>
+                                <td class="text-center text-emerald-600 font-black bg-emerald-50">ALL</td>
+                                <td class="text-center text-rose-500 font-black bg-rose-50 border-x border-slate-200">DENIED</td>
+                                <td class="text-center text-emerald-600 font-black bg-slate-50">TEAM SCOPE</td>
+                                <td class="text-center text-rose-500 font-black">DENIED</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="deep-sprints" class="scroll-mt-10 material-card !border-t-8 !border-purple-600">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-8 border-b-2 border-slate-100 pb-4">5. Tactical Sprint Delivery Plan</h2>
+                
+                <div class="space-y-4 relative before:absolute before:inset-0 before:ml-8 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-1 before:bg-gradient-to-b before:from-purple-600 before:to-indigo-100 mt-12">
+                    
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                        <div class="flex items-center justify-center w-16 h-16 rounded-full border-4 border-white bg-purple-600 shadow-lg shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 text-white font-black text-2xl">
+                            1
+                        </div>
+                        <div class="w-[calc(100%-5rem)] md:w-[calc(50%-4rem)] bg-white p-8 rounded-2xl shadow-md border border-slate-200 hover:border-purple-400 transition-colors ml-auto md:ml-0">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 border-b border-slate-100 pb-3">
+                                <h3 class="font-black text-slate-800 text-xl">Foundation Phase</h3>
+                                <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest mt-2 sm:mt-0 w-fit">Sprint 1</span>
+                            </div>
+                            <ul class="text-sm text-slate-600 space-y-3 font-medium">
+                                <li class="flex items-start"><span class="text-emerald-500 mr-2">✓</span> Auth, User Roles, and Global Manager configuration.</li>
+                                <li class="flex items-start"><span class="text-emerald-500 mr-2">✓</span> Core Leads Module implementation (All defined fields, buttons, views).</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mt-8">
+                        <div class="flex items-center justify-center w-16 h-16 rounded-full border-4 border-white bg-indigo-500 shadow-lg shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 text-white font-black text-2xl">
+                            2
+                        </div>
+                        <div class="w-[calc(100%-5rem)] md:w-[calc(50%-4rem)] bg-white p-8 rounded-2xl shadow-md border border-slate-200 hover:border-indigo-400 transition-colors ml-auto md:ml-0">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 border-b border-slate-100 pb-3">
+                                <h3 class="font-black text-slate-800 text-xl">Execution Architecture</h3>
+                                <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest mt-2 sm:mt-0 w-fit">Sprint 2</span>
+                            </div>
+                            <ul class="text-sm text-slate-600 space-y-3 font-medium">
+                                <li class="flex items-start"><span class="text-emerald-500 mr-2">✓</span> Facility & Client/Accounts DB setup with Broker Logic.</li>
+                                <li class="flex items-start"><span class="text-emerald-500 mr-2">✓</span> Deals / Opportunities Pipeline Kanban.</li>
+                                <li class="flex items-start"><span class="text-emerald-500 mr-2">✓</span> Tasks & Activities scheduling logic.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mt-8">
+                        <div class="flex items-center justify-center w-16 h-16 rounded-full border-4 border-white bg-cyan-500 shadow-lg shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 text-white font-black text-2xl">
+                            3
+                        </div>
+                        <div class="w-[calc(100%-5rem)] md:w-[calc(50%-4rem)] bg-white p-8 rounded-2xl shadow-md border border-slate-200 hover:border-cyan-400 transition-colors ml-auto md:ml-0">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 border-b border-slate-100 pb-3">
+                                <h3 class="font-black text-slate-800 text-xl">Control & Output</h3>
+                                <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest mt-2 sm:mt-0 w-fit">Sprint 3</span>
+                            </div>
+                            <ul class="text-sm text-slate-600 space-y-3 font-medium">
+                                <li class="flex items-start"><span class="text-emerald-500 mr-2">✓</span> Dashboard setup for Global Manager / Reps / Team Leads.</li>
+                                <li class="flex items-start"><span class="text-emerald-500 mr-2">✓</span> SLA logic triggers and red badge warnings.</li>
+                                <li class="flex items-start"><span class="text-emerald-500 mr-2">✓</span> QA, UAT (User Acceptance Testing) and Go-Live prep.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            /* -----------------------------------------------------------
+               1. TABS LOGIC FOR ARCHITECTURE SECTION
+               Handles the switching of complex data entity views.
+            ----------------------------------------------------------- */
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            // Inject CSS for simple fade animation dynamically
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fadeIn 0.3s ease-out forwards;
+                }
+            `;
+            document.head.appendChild(style);
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Reset all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('tab-active');
+                        t.classList.replace('text-indigo-600', 'text-slate-500');
+                        t.style.backgroundColor = 'transparent';
+                    });
+                    
+                    // Hide all contents
+                    contents.forEach(c => {
+                        c.classList.add('hidden');
+                        c.classList.remove('animate-fade-in');
+                    });
+
+                    // Activate clicked tab
+                    tab.classList.add('tab-active');
+                    tab.classList.replace('text-slate-500', 'text-indigo-600');
+                    tab.style.backgroundColor = '#f8fafc';
+                    
+                    // Show target content
+                    const targetContent = document.getElementById(tab.dataset.tab);
+                    targetContent.classList.remove('hidden');
+                    
+                    // Trigger reflow to restart CSS animation
+                    void targetContent.offsetWidth; 
+                    targetContent.classList.add('animate-fade-in');
+                });
+            });
+
+
+            /* -----------------------------------------------------------
+               2. BROKER TOGGLE LOGIC
+               Interactive demonstration of the Client vs Broker entity logic.
+            ----------------------------------------------------------- */
+            const brokerToggle = document.getElementById('brokerToggle');
+            const brokerBg = document.getElementById('brokerBg');
+            const brokerDot = document.getElementById('brokerDot');
+            const brokerStatus = document.getElementById('brokerStatus');
+            const clientDescBox = document.getElementById('clientDescBox');
+
+            if(brokerToggle) {
+                brokerToggle.addEventListener('change', (e) => {
+                    if(e.target.checked) {
+                        // Switch to Broker Mode (Indigo Styling)
+                        brokerBg.classList.replace('bg-slate-300', 'bg-indigo-600');
+                        brokerDot.style.transform = 'translateX(24px)';
+                        brokerStatus.textContent = 'Yes (External Broker)';
+                        brokerStatus.classList.replace('bg-slate-200', 'bg-indigo-100');
+                        brokerStatus.classList.replace('text-slate-600', 'text-indigo-800');
+                        
+                        clientDescBox.innerHTML = `
+                            <h4 class="font-extrabold text-indigo-800 mb-2 text-lg">External Broker Agency</h4>
+                            <p class="text-indigo-600 text-sm leading-relaxed">A third-party agency handling transactions on behalf of one or more disconnected Facilities. Invoices are directed here. This entity acts as a parent to multiple Facility nodes.</p>
+                        `;
+                        clientDescBox.classList.replace('border-slate-200', 'border-indigo-300');
+                        clientDescBox.classList.add('bg-indigo-50');
+                    } else {
+                        // Switch to Internal Mode (Slate Styling)
+                        brokerBg.classList.replace('bg-indigo-600', 'bg-slate-300');
+                        brokerDot.style.transform = 'translateX(0)';
+                        brokerStatus.textContent = 'No (Internal Contact)';
+                        brokerStatus.classList.replace('bg-indigo-100', 'bg-slate-200');
+                        brokerStatus.classList.replace('text-indigo-800', 'text-slate-600');
+                        
+                        clientDescBox.innerHTML = `
+                            <h4 class="font-extrabold text-slate-800 mb-2 text-lg">Internal Employee</h4>
+                            <p class="text-slate-500 text-sm leading-relaxed">This contact works directly inside the associated Facility. Communications and invoices are handled directly with the manufacturer. No third-party agency is involved.</p>
+                        `;
+                        clientDescBox.classList.replace('border-indigo-300', 'border-slate-200');
+                        clientDescBox.classList.remove('bg-indigo-50');
+                    }
+                });
+            }
+
+
+            /* -----------------------------------------------------------
+               3. SLA SIMULATOR LOGIC
+               Demonstrates the background worker rules for deal neglect.
+            ----------------------------------------------------------- */
+            const slaSlider = document.getElementById('slaSlider');
+            const slaCard = document.getElementById('slaCard');
+            const slaIcon = document.getElementById('slaIcon');
+            const slaBgIcon = document.getElementById('slaBgIcon');
+            const slaTitle = document.getElementById('slaTitle');
+            const slaDesc = document.getElementById('slaDesc');
+
+            if(slaSlider) {
+                slaSlider.addEventListener('input', (e) => {
+                    const val = parseInt(e.target.value);
+                    
+                    // Reset base classes for smooth transition
+                    slaCard.className = 'p-8 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center justify-center min-h-[220px] shadow-inner relative overflow-hidden';
+
+                    if(val < 24) {
+                        // Healthy State (0-23h)
+                        slaCard.classList.add('border-emerald-500', 'bg-emerald-50');
+                        slaIcon.textContent = '✅';
+                        slaBgIcon.textContent = '🛡️';
+                        slaTitle.textContent = 'Healthy Pipeline Deal';
+                        slaTitle.className = 'font-black text-2xl text-emerald-800 tracking-tight text-center';
+                        slaDesc.textContent = 'Activity logged within 24h. The sales process is active and on track.';
+                        slaDesc.className = 'text-sm font-bold text-emerald-600 text-center mt-3 max-w-sm';
+                    } 
+                    else if (val >= 24 && val < 48) {
+                        // Rule 1 Triggered (24-47h)
+                        slaCard.classList.add('border-cyan-500', 'bg-cyan-50');
+                        slaIcon.textContent = '🔔';
+                        slaBgIcon.textContent = '👀';
+                        slaTitle.textContent = 'Rule 1: Manager Alert';
+                        slaTitle.className = 'font-black text-2xl text-cyan-800 tracking-tight text-center';
+                        slaDesc.textContent = '>24h passed. Manager dashboard notified of inactive new lead to prevent leakage.';
+                        slaDesc.className = 'text-sm font-bold text-cyan-600 text-center mt-3 max-w-sm';
+                    }
+                    else if (val >= 48 && val < 96) {
+                        // Rule 2 Triggered (48-95h)
+                        slaCard.classList.add('border-amber-500', 'bg-amber-50');
+                        slaIcon.textContent = '⏱️';
+                        slaBgIcon.textContent = '⏳';
+                        slaTitle.textContent = 'Rule 2: Owner Reminder';
+                        slaTitle.className = 'font-black text-2xl text-amber-800 tracking-tight text-center';
+                        slaDesc.textContent = '>48h passed. Automated reminder sent directly to the assigned Sales Rep.';
+                        slaDesc.className = 'text-sm font-bold text-amber-600 text-center mt-3 max-w-sm';
+                    }
+                    else if (val >= 96) {
+                        // Rule 3 Triggered (96h+)
+                        slaCard.classList.add('border-rose-500', 'bg-rose-50');
+                        slaIcon.textContent = '🛑';
+                        slaBgIcon.textContent = '⚠️';
+                        slaTitle.textContent = 'Rule 3: Neglect Breach';
+                        slaTitle.className = 'font-black text-2xl text-rose-800 tracking-tight text-center';
+                        slaDesc.textContent = '>96h with no movement. Red warning badge applied system-wide. SLA failed.';
+                        slaDesc.className = 'text-sm font-bold text-rose-600 text-center mt-3 max-w-sm';
+                    }
+                });
+            }
+
+
+            /* -----------------------------------------------------------
+               4. SCROLL SPY NAVIGATION
+               Highlights the sidebar link based on scroll position.
+            ----------------------------------------------------------- */
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mainContent = document.getElementById('main-content');
+
+            if(mainContent) {
+                mainContent.addEventListener('scroll', () => {
+                    let current = '';
+                    
+                    // Determine which section is currently mostly in view
+                    sections.forEach(section => {
+                        const sectionTop = section.offsetTop;
+                        // Trigger offset buffer
+                        if (mainContent.scrollTop >= (sectionTop - 250)) {
+                            current = section.getAttribute('id');
+                        }
+                    });
+
+                    // Update sidebar classes
+                    navLinks.forEach(link => {
+                        link.classList.remove('nav-active', 'bg-slate-800', 'text-white');
+                        link.classList.add('text-slate-300');
+                        
+                        if (link.getAttribute('data-target') === current) {
+                            link.classList.add('nav-active', 'bg-slate-800', 'text-white');
+                            link.classList.remove('text-slate-300');
+                        }
+                    });
+                });
+            }
+
+        });
+    </script>
+</body>
+</html>

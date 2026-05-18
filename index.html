@@ -3148,7 +3148,7 @@
                 });
             });
 
-            // 7. سحب الداتا من جوجل شيت (Service Catalog)
+        // 7. سحب الداتا من جوجل شيت (Service Catalog)
             async function fetchServiceCatalog() {
                 const tableBody = document.getElementById('tableBody');
                 const tableHeader = document.getElementById('tableHeader');
@@ -3159,7 +3159,9 @@
 
                 const sheetId = '1n_PIM99EEZvr9jAOFSWBk7a_c3yuvBFmhSX1yV4YzAg'; 
                 const gid = '1881170709'; 
-                const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
+                
+                // 💡 التعديل هنا: ضفنا &headers=1 عشان نجبر المتصفح يقرا السطر الأول بس كـ Header
+                const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&headers=1&gid=${gid}`;
 
                 try {
                     const response = await fetch(url);
@@ -3172,20 +3174,25 @@
                     const cols = jsonData.table.cols;
                     const rows = jsonData.table.rows;
 
+                    // بناء الهيدر
                     tableHeader.innerHTML = cols.map(col => 
-                        `<th class="p-3 font-black uppercase tracking-wider text-[10px] text-slate-500 border border-slate-200 bg-slate-50 sticky top-0">${col.label || ''}</th>`
+                        `<th class="p-3 font-black uppercase tracking-wider text-[10px] text-slate-500 border border-slate-200 bg-slate-50 sticky top-0">${col.label || 'N/A'}</th>`
                     ).join('');
 
+                    // بناء الجدول
                     tableBody.innerHTML = rows.map(row => {
                         const cells = cols.map((_, i) => {
                             const cellData = row.c[i];
                             let val = cellData ? (cellData.f || (cellData.v !== null ? String(cellData.v) : "")) : "";
+                            
+                            // تحسين الـ UI عشان لو النص طويل جداً ميبوظش شكل الجدول
                             const isPrice = val.includes('SAR') || (!isNaN(parseFloat(val.replace(/,/g, ''))) && val.length > 0 && i > 3);
-                            return `<td class="p-3 text-slate-700 text-xs border border-slate-200 truncate max-w-[150px] ${isPrice ? 'font-black text-emerald-600 bg-emerald-50/30' : ''}" title="${val}">${val}</td>`;
+                            return `<td class="p-3 text-slate-700 text-xs border border-slate-200 truncate max-w-[200px] ${isPrice ? 'font-black text-emerald-600 bg-emerald-50/30' : ''}" title="${val}">${val}</td>`;
                         }).join('');
                         return `<tr class="hover:bg-slate-50 transition-colors">${cells}</tr>`;
                     }).join('');
 
+                    // تشغيل البحث في الجدول
                     const searchInput = document.getElementById('sheetSearch');
                     if (searchInput) {
                         searchInput.addEventListener('input', (e) => {
@@ -3204,8 +3211,6 @@
             }
 
             fetchServiceCatalog();
-        });
-
         // 8. دوال الفلاتر العامة (Global Window Functions for Dashboards)
         window.toggleTimeNode = function(id) {
             const n = document.getElementById(id);

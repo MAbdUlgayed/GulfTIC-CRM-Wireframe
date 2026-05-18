@@ -302,6 +302,9 @@
                                         <div class="bg-slate-50 text-slate-700 p-2 rounded text-xs border border-slate-200">
                                             Linked to one or many Deals. Created automatically when a Lead reaches "Qualified" stage.
                                         </div>
+                                         <div class="bg-blue-50 text-blue-700 p-2 rounded text-xs border border-blue-200 font-medium">
+                                             Will Add Button (open Ticket / follow-up) has a dynamic dropdown list and go to follow-up (Opreation problem, Certificate ended to renewal,  etc,)
+                                        </div>
                                     </div>
                                 </div>
 
@@ -310,18 +313,23 @@
                                     <div class="text-4xl mb-3">🤝</div>
                                     <h4 class="font-black text-xl text-slate-900 mb-2">Client / Broker</h4>
                                     <p class="text-sm text-slate-600 mb-4">The payer/communicator. Can be linked to multiple Facilities.</p>
-                                    <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                                        <label class="flex items-center cursor-pointer">
-                                            <div class="relative">
-                                                <input type="checkbox" id="brdBrokerToggle" class="sr-only">
-                                                <div class="block bg-slate-300 w-10 h-6 rounded-full transition-colors" id="brdBrokerBg"></div>
-                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform" id="brdBrokerDot"></div>
-                                            </div>
-                                            <div class="ml-3 text-sm font-bold text-slate-800">
-                                                Is Broker? <span id="brdBrokerStatus" class="text-xs text-slate-500 font-normal">No</span>
-                                            </div>
-                                        </label>
-                                        <p class="text-[10px] text-indigo-600 mt-2 font-bold uppercase">Mandatory Toggle (Yes/No) </p>
+                                    <div class="space-y-2">
+                                        <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                                            <label class="flex items-center cursor-pointer">
+                                                <div class="relative">
+                                                    <input type="checkbox" id="brdBrokerToggle" class="sr-only">
+                                                    <div class="block bg-slate-300 w-10 h-6 rounded-full transition-colors" id="brdBrokerBg"></div>
+                                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform" id="brdBrokerDot"></div>
+                                                </div>
+                                                <div class="ml-3 text-sm font-bold text-slate-800">
+                                                    Is Broker? <span id="brdBrokerStatus" class="text-xs text-slate-500 font-normal">No</span>
+                                                </div>
+                                            </label>
+                                            <p class="text-[10px] text-indigo-600 mt-2 font-bold uppercase">Mandatory Toggle (Yes/No) </p>
+                                        </div>
+                                         <div class="bg-blue-50 text-blue-700 p-2 rounded text-xs border border-blue-200 font-medium">
+                                             Will Add Button (open Ticket / follow-up) has a dynamic dropdown list and go to follow-up (Opreation problem, Certificate ended to renewal,  etc,)
+                                        </div>
                                     </div>
                                 </div>
 
@@ -362,7 +370,6 @@
 
                             </div>
                         </div>
-
                         <div class="p-8 bg-slate-50 border-t border-slate-200">
                             <h3 class="text-2xl font-extrabold text-slate-800 mb-6 border-b-2 border-slate-200 pb-2">1.2 The 360-Degree Unified View </h3>
                             
@@ -677,7 +684,7 @@
                                 <span class="bg-emerald-700 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-4 shadow-inner">4</span>
                                 Module 3: Quotation & Order Line
                             </h2>
-                            <p class="text-emerald-200 text-lg">Automated pricing logic, discount approvals, and financial data management.</p>
+                            <p class="text-emerald-200 text-lg">Automated pricing logic, discount approvals, tabs structure, and financial data management.</p>
                         </div>
 
                         <div class="p-8">
@@ -702,15 +709,16 @@
                                         </div>
                                     </div>
 
-                                        <div class="overflow-x-auto bg-white border border-slate-200 rounded-lg mt-2 flex-1 max-h-[500px]"> <table class="w-full text-sm text-left border-collapse table-fixed min-w-[800px]" id="servicesTable">
-                                                <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm"> <tr id="tableHeader">
-                                                        </tr>
+                                        <div class="overflow-x-auto bg-white border border-slate-200 rounded-lg mt-2 flex-1 max-h-[500px]"> 
+                                            <table class="w-full text-sm text-left border-collapse table-fixed min-w-[800px]" id="servicesTable">
+                                                <thead class="sticky top-0 z-10 bg-slate-100 shadow-sm"> 
+                                                    <tr id="tableHeader"></tr>
                                                 </thead>
-                                                <tbody class="divide-y divide-slate-200" id="tableBody">
-                                                    </tbody>
+                                                <tbody class="divide-y divide-slate-200" id="tableBody"></tbody>
                                             </table>
                                         </div>                               
-                                    </div>                                
+                                </div>                               
+                                
                                 <div class="p-6 bg-rose-50 border border-rose-200 rounded-xl shadow-sm hover:-translate-y-1 transition-transform relative overflow-hidden flex flex-col">
                                     <div class="w-full h-1 bg-rose-500 absolute top-0 left-0"></div>
                                     <div class="text-3xl mb-3">⚖️</div>
@@ -721,6 +729,29 @@
                                         <p><span class="font-bold text-rose-600">Rejection:</span> Manager must write notes (reason) and can optionally suggest a new discount percentage.</p>
                                     </div>
                                 </div>
+
+                                <div class="p-6 bg-indigo-50 border border-indigo-200 rounded-xl shadow-sm hover:-translate-y-1 transition-transform relative overflow-hidden flex flex-col">
+                                    <div class="w-full h-1 bg-indigo-500 absolute top-0 left-0"></div>
+                                    <div class="text-3xl mb-3">📑</div>
+                                    <strong class="block text-slate-800 text-lg mb-2">Form View Tabs (UI Structure)</strong>
+                                    <div class="text-sm text-slate-700 space-y-3 flex-1">
+                                        <div class="bg-white p-3 rounded border border-indigo-100 shadow-sm">
+                                            <strong class="text-indigo-700 block mb-1">Tab 1: General Info</strong>
+                                            <p class="text-xs">Contains all primary fields expected from the Deal/Client context.</p>
+                                        </div>
+                                        <div class="bg-white p-3 rounded border border-indigo-100 shadow-sm">
+                                            <strong class="text-indigo-700 block mb-1">Tab 2: Services Line (Required)</strong>
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-mono border border-slate-200">Product category</span>
+                                                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-mono border border-slate-200">Section</span>
+                                                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-mono border border-slate-200">Product Name</span>
+                                                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-mono border border-slate-200">Hs Code</span>
+                                                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-mono border border-slate-200">Technical Regulation</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <h3 class="text-xl font-extrabold text-slate-800 mb-6 border-b-2 border-slate-100 pb-2">4.2 Quotation Entity Data Dictionary</h3>
@@ -733,19 +764,19 @@
                                         <tr class="border-b">
                                             <td class="p-4 font-bold text-rose-600 bg-rose-50/30">Required Fields</td>
                                             <td class="p-4 text-slate-700 font-mono text-xs leading-relaxed">
-                                                Request Number, Currency, Multiple Services Selection, Facility Name, Client name, Campaign, Source, Phone, Email, Salesperson.
+                                                Request Number, Currency, Multiple Services Selection, Service Type (New/Renewal), Facility Name, Client name, Campaign, Source, Phone, Email, Payment Method, Salesperson.
                                             </td>
                                         </tr>
                                         <tr class="border-b">
                                             <td class="p-4 font-bold text-slate-600">Optional / System Fields</td>
                                             <td class="p-4 text-slate-600 font-mono text-xs leading-relaxed">
-                                                service_interest, Industry, sales_team, priority (Low, Medium, High), tags notes, Broker Name (Visible only if 'Is broker?' is true), Expiration, Documents, Quotation Date, Payment Terms, Payment Method, Sub-services, Discount, Taxes, Quantity, Stage (Quotation, Quotation sent, Accept, Cancel), Expiry date, Confirm, Terms & Conditions.
+                                                service_interest, Industry, sales_team, priority (Low, Medium, High), tags notes, Broker Name (Visible only if 'Is broker?' is true), Documents, Payment Terms, Sub-services, Discount, Taxes, Quantity, Stage (Quotation, Quotation sent, Accept, Cancel), Expiry date, Confirm, Terms & Conditions.
                                             </td>
                                         </tr>
                                         <tr>
                                             <td class="p-4 font-bold text-emerald-600 bg-emerald-50/30">Auto-Calculated Fields</td>
                                             <td class="p-4 text-slate-700 font-mono text-xs leading-relaxed">
-                                                Quotation Number, Untaxed Amount, Total discount, Total amount, Request Type (New / renewal).
+                                                Quotation Number, Untaxed Amount, Total discount, Quotation Date, Total amount, Request Type (New / renewal).
                                             </td>
                                         </tr>
                                     </tbody>
@@ -758,7 +789,7 @@
                                     <strong class="block text-sm text-slate-700 mb-4 uppercase tracking-widest">Available Views</strong>
                                     <div class="flex flex-wrap gap-2">
                                         <span class="px-3 py-1.5 bg-white border border-slate-300 rounded shadow-sm text-xs font-bold text-slate-600">☰ List</span>
-                                        <span class="px-3 py-1.5 bg-white border border-slate-300 rounded shadow-sm text-xs font-bold text-slate-600">📝 Form</span>
+                                        <span class="px-3 py-1.5 bg-white border border-slate-300 rounded shadow-sm text-xs font-bold text-slate-600">📝 Form (Multi-Tab)</span>
                                         <span class="px-3 py-1.5 bg-white border border-slate-300 rounded shadow-sm text-xs font-bold text-slate-600">◫ Kanban</span>
                                     </div>
                                 </div>
@@ -786,14 +817,14 @@
                             </div>
 
                         </div>
-                    </section>
+                    </section>                    
                     <section id="module-sla" class="scroll-mt-10 material-card !border-t-8 !border-amber-500 !p-0 overflow-hidden shadow-lg rounded-2xl bg-white">
                         <div class="bg-gradient-to-r from-amber-600 to-orange-500 p-8 text-white">
                             <h2 class="text-3xl font-black mb-2 tracking-tight flex items-center">
                                 <span class="bg-amber-800 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-4 shadow-inner">5</span>
                                 Module 4: SLA Automation & Activity Tracking
                             </h2>
-                            <p class="text-amber-100 text-lg">Automated background workers, escalation rules, and interactive activity planning.</p>
+                            <p class="text-amber-100 text-lg">Automated background workers, escalation rules, interactive activity planning, and strict logging logic.</p>
                         </div>
 
                         <div class="p-8">
@@ -850,32 +881,79 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <div>
-                                    <h3 class="text-xl font-extrabold text-slate-800 mb-4 border-b-2 border-slate-100 pb-2">5.3 Activities Type</h3>
-                                    <div class="flex flex-wrap gap-3">
-                                        <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">📞</span> Calls</span>
-                                        <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">💬</span> WhatsApp</span>
-                                        <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">🤝</span> Meetings</span>
-                                        <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">✉️</span> Emails</span>
-                                        <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">☑️</span> To-do</span>
-                                        <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">📄</span> Documents</span>
-                                    </div>
+                            <h3 class="text-xl font-extrabold text-slate-800 mb-4 border-b-2 border-slate-100 pb-2">5.3 Activities Type</h3>
+                            <div class="flex flex-wrap gap-3 mb-10">
+                                <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">📞</span> Calls</span>
+                                <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">💬</span> WhatsApp</span>
+                                <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">🤝</span> Meetings</span>
+                                <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">✉️</span> Emails</span>
+                                <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">☑️</span> To-do</span>
+                                <span class="px-4 py-2 bg-indigo-50 border border-indigo-300 rounded-lg shadow-sm text-sm font-bold text-indigo-800 flex items-center"><span class="mr-2">🔄</span> Follow-up</span>
+                                <span class="px-4 py-2 bg-white border border-slate-300 rounded-lg shadow-sm text-sm font-bold text-slate-700 flex items-center"><span class="mr-2">📄</span> Documents</span>
+                            </div>
+
+                            <h3 class="text-xl font-extrabold text-slate-800 mb-4 border-b-2 border-slate-100 pb-2">5.4 Activities Plan & Follow-up Logic</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                                <div class="bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-sm flex flex-col">
+                                    <strong class="block text-amber-900 text-lg mb-3 border-b border-amber-200 pb-2">Follow-up Definition</strong>
+                                    <p class="text-sm text-amber-800 mb-3 leading-relaxed">
+                                        A "Follow-up" is a structured activity type that requires scheduling a future action with the client. When selected, the system <strong class="bg-amber-200 px-1 rounded">must enforce</strong> setting a "Next Activity Date".
+                                    </p>
+                                    <ul class="text-sm text-amber-800 space-y-2 mt-auto">
+                                        <li class="flex items-start"><span class="mr-2">⚠️</span> <div>Any deal without a Next Activity Date must be flagged as <strong>"No Future Action"</strong>.</div></li>
+                                        <li class="flex items-start"><span class="mr-2">🚨</span> <div>Deals with overdue follow-ups must appear in a dedicated <strong>“Overdue Follow-ups”</strong> view and be highlighted in the dashboard/kanban card.</div></li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100 flex flex-col justify-center items-center text-center shadow-sm">
+                                    <button class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-lg shadow-lg transition-colors flex items-center text-lg mb-4">
+                                        <span class="mr-2">🗓️</span> Create Activity Plan
+                                    </button>
+                                    <p class="text-sm text-indigo-800 font-medium">Opens an interactive calendar view, allowing Reps to schedule and visualize multiple upcoming tasks and meetings linked to specific deals.</p>
+                                </div>
+                            </div>
+
+                            <h3 class="text-xl font-extrabold text-slate-800 mb-4 border-b-2 border-slate-100 pb-2">5.5 Activities Logging</h3>
+                            <p class="text-sm text-slate-600 mb-6">To improve tracking and accountability, every logged activity must auto-update the following fields on the Deal profile:</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="border border-slate-200 rounded-lg p-5 bg-white shadow-sm">
+                                    <div class="text-slate-400 mb-2">🕒</div>
+                                    <strong class="block text-slate-800 text-sm mb-1">Last Activity Date</strong>
+                                    <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded mb-2">Auto-updated</span>
+                                    <p class="text-xs text-slate-600 font-mono bg-slate-50 p-2 rounded border border-slate-100">Format: (Type + Timestamp + Notes preview)</p>
                                 </div>
 
-                                <div>
-                                    <h3 class="text-xl font-extrabold text-slate-800 mb-4 border-b-2 border-slate-100 pb-2">5.4 Activities Plan</h3>
-                                    <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100 flex flex-col justify-center items-center text-center">
-                                        <button class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-lg shadow-lg transition-colors flex items-center text-lg mb-4">
-                                            <span class="mr-2">🗓️</span> Create Activity Plan
-                                        </button>
-                                        <p class="text-sm text-indigo-800 font-medium">Opens an interactive calendar view, allowing Reps to schedule and visualize multiple upcoming tasks and meetings linked to specific deals.</p>
+                                <div class="border border-indigo-200 rounded-lg p-5 bg-indigo-50 shadow-sm relative overflow-hidden">
+                                    <div class="text-indigo-400 mb-2">🎯</div>
+                                    <strong class="block text-indigo-900 text-sm mb-1">Next Activity Date</strong>
+                                    <span class="inline-block px-2 py-0.5 bg-rose-100 text-rose-700 text-[10px] font-bold rounded mb-2 uppercase">Mandatory for Follow-ups</span>
+                                    <p class="text-xs text-indigo-700 mt-1">Represents the next planned action. Used for reminders, SLA tracking, and prioritization.</p>
+                                    <p class="text-xs text-indigo-800 font-mono bg-white p-2 rounded border border-indigo-100 mt-2">Format: (Type + Due Date)</p>
+                                </div>
+
+                                <div class="border border-slate-200 rounded-lg p-5 bg-white shadow-sm">
+                                    <div class="text-slate-400 mb-2">📊</div>
+                                    <strong class="block text-slate-800 text-sm mb-3">Activity Status</strong>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-center">
+                                            <span class="w-2 h-2 rounded-full bg-amber-400 mr-2"></span>
+                                            <span class="text-xs font-bold text-slate-700">Pending</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>
+                                            <span class="text-xs font-bold text-slate-700">Completed</span>
+                                        </div>
+                                        <div class="flex items-center bg-rose-50 border border-rose-200 p-1.5 rounded">
+                                            <span class="w-2 h-2 rounded-full bg-rose-600 mr-2 animate-pulse"></span>
+                                            <span class="text-xs font-bold text-rose-700">Overdue (Reschedule)</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                         </div>
-                    </section>                    
+                    </section>                    
                     <section id="module-renewals" class="scroll-mt-10 material-card !border-t-8 !border-purple-500 !p-0 overflow-hidden shadow-lg rounded-2xl bg-white">
                         <div class="bg-gradient-to-r from-purple-900 to-purple-800 p-8 text-white">
                             <h2 class="text-3xl font-black mb-2 tracking-tight flex items-center">
